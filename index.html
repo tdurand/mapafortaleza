@@ -47,7 +47,7 @@
                     query: {
                       select: 'geometry',
                       from: '1628071',
-                      where: "name contains '"+name+"'"
+                      where: "name STARTS WITH '"+name+"'"
                     },
                 });
                 this.layer.setMap(this.map);
