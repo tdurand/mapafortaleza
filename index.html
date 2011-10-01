@@ -13,9 +13,8 @@
     <script id="lineList" type="text/html">
         <select data-placeholder="Escolhe uma linha" style="width:80%;height:10%;" class="chzn-select">
         {{#table}}
-            {{%IMPLICIT-ITERATOR iterator=name}}
             {{#rows}}
-                <option value="{{name}}">{{name}}</option>
+                <option value="{{num}}">{{label}}</option>
             {{/rows}}
         {{/table}}
         </select>
@@ -34,7 +33,7 @@
             initialize : function() {
                 this.myLatlng = new google.maps.LatLng(-3.71969,-38.52562);
                 this.myOptions = {
-                  zoom: 11,
+                  zoom: 13,
                   center: this.myLatlng,
                   mapTypeId: google.maps.MapTypeId.ROADMAP
                 }
@@ -50,14 +49,6 @@
                       from: '1628071',
                       where: "name contains '"+name+"'"
                     },
-                    /*
-                    styles: [{
-                    polylineOptions: {
-                      strokeColor: '#2B1BE0',
-                      strokeWeight: 1
-                    }
-                    }]
-                    */
                 });
                 this.layer.setMap(this.map);
             },
@@ -80,6 +71,18 @@
             },
             parse : function(response) {
                 response.table.rows=_.flatten(response.table.rows);
+                response.table.rows=_.reject(response.table.rows,function(row) {
+                    if(row.split("-")[2]==" Volta") {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                response.table.rows=_.map(response.table.rows,function(row) {
+                    var array=row.split("-");
+                    return { num: array[0],label: array[0]+array[1]};
+                });
                 return response;
             },
         });
@@ -89,9 +92,9 @@
             render: function() {
                 this.el.append(ich.lineList(this.model.toJSON()));
                 $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
-                     busMap.displayLine($(".chzn-select").val());
+                     busMap.navigate("line/"+$(".chzn-select").val(),true);
                 });
-                busMap.displayLine($(".chzn-select").val());
+                busMap.navigate("line/"+$(".chzn-select").val(),true);
                 return this;
             }
         });
