@@ -32,6 +32,8 @@
   //  this.draw = function() {};
   // Markers with 'head' arrows must be stored
   this.arrowheads = [];
+  //all markers stored
+  this.arrows = [];
  }
 
  ArrowHandler.prototype = new google.maps.OverlayView();
@@ -94,6 +96,7 @@
     var marker = new g.Marker({position: markerpos,
      map: map, icon: icon, clickable: false
     });
+    this.arrows.push(marker);
     if (mode == "head") {
      // Store markers with 'head' arrows to adjust their offset position on zoom change
      marker.p1 = p1;
@@ -103,7 +106,7 @@
   };
 
  ArrowHandler.prototype.load = function (points, mode,map) {
-    for (var i = 0; i < points.length-1; i=i+40) {
+    for (var i = 0; i < points.length-1; i=i+45) {
       var p1 = points[i],
       p2 = points[i + 1];
       this.create(p1, p2, mode,map); 
@@ -127,6 +130,7 @@
     
         ich.grabTemplates();
         
+        
         var Map = Backbone.Model.extend({
             
             initialize : function() {
@@ -139,61 +143,45 @@
                 
                 this.map = new google.maps.Map(document.getElementById("map_canvas"), this.myOptions);
                 this.setArrows=new ArrowHandler(this.map);
-                this.lines=new Array();
+                this.lines=[];
                 this.fetch();
             },
             url:function() {
                 return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 1628071 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?"
             },
             parse : function(response) {
-                var setArrowsTemp=this.setArrows;
-                var mapTemp=this.map;
+                var setArrows=this.setArrows;
+                var map=this.map;
                 var lines=this.lines;
                 
-                if(_.last(lines)!=null) lines.pop().setMap(null);
-                if(_.last(lines)!=null) lines.pop().setMap(null);
+                //remove previous lines
+                _.each(lines,function(line) {
+                    line.setMap(null);
+                });
+                //reinit list of lines
+                //if(_.last(lines)!=null) lines=[];
                 
+                //remove all previous arrows
+                _.each(setArrows.arrows,function(arrow) {
+                    arrow.setMap(null);
+                });
+                //reinit set of arrows
+                setArrows.arrows=[];
                 
+                //Parse response
                 response.table.rows=_.flatten(response.table.rows);
+                //For each coordinate, create a gmap.Latlng object, and display it
                 response.table.rows=_(response.table.rows).each(function (row){
                     row.coordinates=_(row.coordinates).map(function(coord) {
                         return new google.maps.LatLng(coord[1],coord[0]);
                     });
-                    lines.push(createPoly(row.coordinates,"midline",setArrowsTemp,mapTemp));
+                    lines.push(createPoly(row.coordinates,"midline",setArrows,map));
                 });
                 
-                
-                /*
-                response.table.rows[0][0].coordinates=_.map(response.table.rows[0][0].coordinates,function(coord) {
-                    return new google.maps.LatLng(coord[1],coord[0]);
-                })*/
-                //createPoly(response.table.rows[0][0].coordinates,"midline",this.setArrows,this.map)
-                
-                
-                /*
-                this.line= new google.maps.Polyline({
-                    strokeColor: "#0000ff",
-                    strokeOpacity: 0.8,
-                    strokeWeight: 3,
-                    path: response.table.rows[0][0].coordinates,
-                    map:this.map
-                }); */
             },
             displayLine : function(name) {
                 this.name=name;
                 this.fetch();
-                /*
-                //remove previous layer
-                if(this.layer!=null) this.layer.setMap(null);
-                this.layer=new google.maps.FusionTablesLayer({
-                    query: {
-                      select: 'geometry',
-                      from: '1628071',
-                      where: "name STARTS WITH '"+name+"'"
-                    },
-                });
-                this.layer.setMap(this.map);
-                */
             },
         });
         
