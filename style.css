@@ -1,0 +1,19 @@
+body {
+    margin-left:auto;
+    margin-right:auto;
+    width:70%;
+}
+
+#listlines {
+    width:100%;
+}
+select {
+    width:100%;
+}
+
+#map_canvas
+{
+    margin-top:2%;
+    width:100%;
+    height:80%;
+}
