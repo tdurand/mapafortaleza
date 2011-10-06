@@ -24,3 +24,14 @@ select {
     margin-top:2%;
     
 }
+
+#header {
+    width:100%;
+}
+
+#lastupdate {
+    float:right;
+}
+#title {
+    width:40%;
+}
