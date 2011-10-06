@@ -17,3 +17,10 @@ select {
     width:100%;
     height:80%;
 }
+
+#map_footer {
+    width:20%;
+    margin: 0 auto;
+    margin-top:2%;
+    
+}
