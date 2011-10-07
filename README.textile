@@ -1,10 +1,11 @@
 h3. Mapa de onibus de Fortaleza
 
-*NB: The data are not automatically updated. (last update: 10/05/2011)*
+*NB: The data are not automatically updated.*
 
 Application for visualizing bus lines of Fortaleza:
 
 * The data are from "Etufor":http://www.fortaleza.ce.gov.br/etufor/index.php?option=com_content&task=view&id=278 .
 * The application uses Google Fusion Table to manipulate data
+* Thanks to : "wolpil.de":http://www.wolfpil.de/v3/arrow-heads.html for the code of arrows for polylines
 
 _Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php, Copyright by tdurand, 2011_
