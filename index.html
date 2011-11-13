@@ -43,7 +43,7 @@
 
 <body>
     <h3>Mapa de ônibus de Fortaleza</h3>
-    <input type="button" value="Adicionar origem/destino do onibus" onClick="new Marker();">
+    Para filtrar as linhas adicione um ponto por o onibus deve passar clicando no mapa no local, para mudar o local desse marcador apenas clique e arraste, para remover esse marcador clique 2x no marcador.
     <div id="listlines">
     </div>
     <div id="map_canvas"></div>
@@ -85,6 +85,15 @@
                 }
                 
                 this.map = new google.maps.Map(document.getElementById("map_canvas"), this.myOptions);
+                markers = [];
+                this.markers = markers;
+
+                google.maps.event.addListener(this.map, 'click', function(mouse) {
+                  marker = new Marker({position: mouse.latLng});
+                  markers.push(marker);
+                  marker.update();
+                });
+
                 this.setArrows=new ArrowHandler(this.map);
                 this.lines=[];
                 this.fetch();
@@ -129,18 +138,29 @@
             getMap : function(){
               return this.map;
             },
+            getMarkers : function(){
+              return this.markers;
+            },
         });
         
          var Marker = Backbone.Model.extend({
-            initialize : function() {
+            initialize : function(options) {
                var markerBone = this;
-               this.marker = new google.maps.Marker({position: busMap.getMap().center ,map: busMap.getMap() , draggable: true});
-               markers.push(this);
+               var marker = new google.maps.Marker({position: options['position'] ,map: busMap.getMap() , draggable: true});
+               this.marker = marker;
+
                google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
-                 markerBone.fetch({success: function(model,response){
-                    updateLineList();
-                 }});
+                 markerBone.update();
+               });
+
+                
+               google.maps.event.addListener(this.marker, 'dblclick', function() {
+                 marker.setMap(null);
+                 var mrkX = busMap.getMarkers().indexOf(markerBone);
+                 if (mrkX!=-1) busMap.getMarkers().splice(mrkX,1); 
+                 markerBone.update();
                 });
+
             },
             url:function() {
                return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG"+this.marker.position+",1000))&jsonCallback=?"
@@ -157,14 +177,16 @@
                 });
                 return response;
               },
-             
+              update : function(){
+                 this.fetch({success: function(model,response){
+                    updateLineList();
+                 }});
+              },
         });       
 
-        var markers = [];
-        
         var updateLineList = function(){
           this.toJSON = function(){
-            var markers_routes = markers.map(function(mark){return mark.attributes.table.rows});
+            var markers_routes = busMap.getMarkers().map(function(mark){return mark.attributes.table.rows});
             var rotas = arrayIntersection(markers_routes);
             return {table: {rows: rotas.map(function(row) {
               var array=row.split("-");
@@ -234,6 +256,10 @@
             index : function() {
             },
             
+            getMarkers : function(){
+               return this._map.getMarkers();
+            },
+
             getMap : function(){
                return this._map.getMap();
             },
