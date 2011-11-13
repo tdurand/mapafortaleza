@@ -90,6 +90,10 @@
                 this.fetch();
             },
             url:function() {
+                //HACK because etufor data set is not consistent
+                if(this.name!=undefined && this.name.length==2) {
+                    this.name=this.name+" -";
+                }
                 return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 1628071 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?"
             },
             parse : function(response) {
