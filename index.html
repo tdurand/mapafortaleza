@@ -13,6 +13,7 @@
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"></script>
     <script type="text/javascript" src="libs/chosen.jquery.js"></script>
     <script type="text/javascript" src="arrows.js"></script>
+    <script type="text/javascript" src="intersection.js" charset="utf-8" ></script>
     
     
     <script id="lineList" type="text/html">
@@ -25,7 +26,7 @@
         </select></p>
     </script>
     
-    <script type="text/javascript">
+<!--    <script type="text/javascript">
 
         var _gaq = _gaq || [];
         _gaq.push(['_setAccount', 'UA-26151767-1']);
@@ -38,11 +39,12 @@
         })();
 
     </script>
-    
+    -->
 </head>
 
 <body>
     <h3>Mapa de ônibus de Fortaleza</h3>
+    <input type="button" value="Adicionar origem/destino do onibus" onClick="new Marker();">
     <div id="listlines">
     </div>
     <div id="map_canvas"></div>
@@ -72,7 +74,6 @@
     </div>
     <script>
         ich.grabTemplates();
-        
         
         var Map = Backbone.Model.extend({
             
@@ -126,9 +127,55 @@
                 this.name=name;
                 this.fetch();
             },
+            getMap : function(){
+              return this.map;
+            },
         });
         
+         var Marker = Backbone.Model.extend({
+            initialize : function() {
+               var markerBone = this;
+               this.marker = new google.maps.Marker({position: busMap.getMap().center ,map: busMap.getMap() , draggable: true});
+               markers.push(this);
+               google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
+                 markerBone.fetch({success: function(model,response){
+                    updateLineList();
+                 }});
+                });
+            },
+            url:function() {
+               return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG"+this.marker.position+",1000))&jsonCallback=?"
+            },
+            parse : function(response) {
+              response.table.rows=_.flatten(response.table.rows);
+              response.table.rows=_.reject(response.table.rows,function(row) {
+                    if(row.split("-")[2]==" Volta") {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                return response;
+              },
+             
+        });       
+
+        var markers = [];
         
+        var updateLineList = function(){
+          this.toJSON = function(){
+            var markers_routes = markers.map(function(mark){return mark.attributes.table.rows});
+            var rotas = arrayIntersection(markers_routes);
+            return {table: {rows: rotas.map(function(row) {
+              var array=row.split("-");
+              return { num: array[0],label: array[0]+array[1]};
+            })}};
+          };
+          var lineListView = new LineListView({model : this})
+          lineListView.render();
+          return lineListView;
+        };
 
         var LineList = Backbone.Model.extend({
             _view : null,
@@ -164,7 +211,7 @@
         var LineListView = Backbone.View.extend({
             el : $("#listlines"),
             render: function() {
-                this.el.append(ich.lineList(this.model.toJSON()));
+                this.el.html(ich.lineList(this.model.toJSON()));
                 $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                      busMap.navigate("line/"+$(".chzn-select").val(),true);
                 });
@@ -188,6 +235,10 @@
             index : function() {
             },
             
+            getMap : function(){
+               return this._map.getMap();
+            },
+
             displayLine : function(name) {
                 this._map.displayLine(name);
             }
@@ -197,7 +248,9 @@
         var busMap=new BusMap();
         
         Backbone.history.start();
-        
+
+
+
     </script>
 
 </body>
