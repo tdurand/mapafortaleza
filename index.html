@@ -5,6 +5,7 @@
     <title>Mapa de ônibus de Fortaleza</title>
     
     <link rel="stylesheet" type="text/css" href="libs/chosen.css" />
+    <link rel="stylesheet" type="text/css" href="style/gh-buttons.css" />
     <link rel="stylesheet" type="text/css" href="style.css" />
     <script type="text/javascript" src="libs/underscore-min.js" charset="utf-8"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
@@ -17,13 +18,21 @@
     
     
     <script id="lineList" type="text/html">
-        <p>Escolhe uma linha : <select data-placeholder="Escolhe uma linha" class="chzn-select">
+        <p><strong>Escolhe uma linha :</strong> <select data-placeholder="Escolhe uma linha" class="chzn-select">
         {{#table}}
             {{#rows}}
                 <option value="{{num}}">{{label}}</option>
             {{/rows}}
         {{/table}}
         </select></p>
+    </script>
+    
+    <script id="markerList" type="text/html">
+        <ul>
+            {{#models}}
+                <li><button class="button icon remove danger" onClick="busMap._markerList.removeByIndex({{index}})">Ponto {{num}}</button></li>
+            {{/models}}
+        </ul>
     </script>
     
     <script type="text/javascript">
@@ -43,10 +52,20 @@
 
 <body>
     <h3>Mapa de ônibus de Fortaleza</h3>
-    <input type="button" value="Adicionar origem/destino do onibus" onClick="new Marker();">
-    <div id="listlines">
+    <div id="wrapper">
+        <div id="filter">
+        <h4>Filtrar linhas:</h4>
+        <p class="description justify"><i>Filtrar a lista de linhas pela adição de pontos onde o ônibus tem que passar (< 1 km).</i></p>
+        <button class="button icon pin big" onClick="busMap._markerList.add(new Marker());">Addicionar ponto</button>
+        <div id="listmarkers"></div>
+        </div>
+        <div id="map">
+            <div id="listlines">
+            </div>
+            <div id="map_canvas"></div>
+        </div>
     </div>
-    <div id="map_canvas"></div>
+    
     <div id="map_footer">
         <!-- AddThis Button BEGIN -->
 <div class="addthis_toolbox addthis_default_style ">
@@ -105,8 +124,6 @@
                 _.each(lines,function(line) {
                     line.setMap(null);
                 });
-                //reinit list of lines
-                //if(_.last(lines)!=null) lines=[];
                 
                 //remove all previous arrows
                 _.each(setArrows.arrows,function(arrow) {
@@ -139,12 +156,14 @@
             initialize : function() {
                var markerBone = this;
                this.marker = new google.maps.Marker({position: busMap.getMap().center ,map: busMap.getMap() , draggable: true});
-               markers.push(this);
                google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
                  markerBone.fetch({success: function(model,response){
-                    updateLineList();
+                    busMap._markerList.updateLineList();
                  }});
                 });
+                markerBone.fetch({success: function(model,response){
+                        busMap._markerList.updateLineList();
+                }});
             },
             url:function() {
                return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG"+this.marker.position+",1000))&jsonCallback=?"
@@ -162,23 +181,54 @@
                 return response;
               },
              
-        });       
-
-        var markers = [];
+        });
+         
+        var MarkerList = Backbone.Collection.extend({
+                _view : null,
+                model: Marker,
+                updateLineList : function() {
+                    this._view=new MarkerListView({model : this});
+                    this._view.render();
+                    if(this.models.length>0) {
+                    busMap._lineList._view=new LineListView({model : this.computeLineList()});
+                    busMap._lineList._view.renderJSON();
+                    }
+                    else {
+                        busMap._lineList.reinit();
+                    }
+                    
+                },
+                computeLineList : function(){
+                    var markers_routes = this.models.map(function(mark){return mark.attributes.table.rows});
+                    var rotas = arrayIntersection(markers_routes);
+                    return {table: {rows: rotas.map(function(row) {
+                      var array=row.split("-");
+                      return { num: array[0],label: array[0]+array[1]};
+                    })}};
+                },
+                toJSON : function() {
+                    var listMarkers=this.models;
+                    return {models: _.map(listMarkers,function(mark,i) {
+                                    return {num: i+1,index: i};
+                                    })};
+                },
+                removeByIndex : function(index) {
+                    var markerToRemove=this.at(index);
+                    markerToRemove.marker.setMap(null);
+                    this.remove(markerToRemove);
+                    this.updateLineList();
+                }
+        });
         
-        var updateLineList = function(){
-          this.toJSON = function(){
-            var markers_routes = markers.map(function(mark){return mark.attributes.table.rows});
-            var rotas = arrayIntersection(markers_routes);
-            return {table: {rows: rotas.map(function(row) {
-              var array=row.split("-");
-              return { num: array[0],label: array[0]+array[1]};
-            })}};
-          };
-          var lineListView = new LineListView({model : this})
-          lineListView.render();
-          return lineListView;
-        };
+        var MarkerListView = Backbone.View.extend({
+            el : $("#listmarkers"),
+            render : function() {
+                //console.log(this.model.toJSON());
+                this.el.html(ich.markerList(this.model.toJSON()));
+                return this;
+            }
+            
+        });
 
         var LineList = Backbone.Model.extend({
             _view : null,
@@ -209,12 +259,25 @@
                 });
                 return response;
             },
+            reinit : function() {
+                this.fetch();
+                this._view=new LineListView({model : this});
+                this._view.render();
+            }
         });
         
         var LineListView = Backbone.View.extend({
             el : $("#listlines"),
             render: function() {
                 this.el.html(ich.lineList(this.model.toJSON()));
+                $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
+                     busMap.navigate("line/"+$(".chzn-select").val(),true);
+                });
+                busMap.navigate("line/"+$(".chzn-select").val(),true);
+                return this;
+            },
+            renderJSON: function() {
+                this.el.html(ich.lineList(this.model));
                 $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                      busMap.navigate("line/"+$(".chzn-select").val(),true);
                 });
@@ -232,6 +295,7 @@
             
             initialize : function() {
                 this._lineList=new LineList();
+                this._markerList=new MarkerList();
                 this._map=new Map();
             },
             

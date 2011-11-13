@@ -1,14 +1,32 @@
 body {
     margin-left:auto;
     margin-right:auto;
-    width:70%;
+    width:90%;
+}
+#filter {
+    margin-top:60px;
+    width:13%;
+    float:left;
+}
+#map {
+    float:right;
+    width:85%;
 }
 
 #listlines {
     width:100%;
+    
 }
 select {
     width:100%;
+}
+
+p.justify {
+    text-align:justify;
+}
+
+p.description {
+    font-size:0.8em;
 }
 
 #map_canvas
@@ -20,7 +38,16 @@ select {
 
 #map_footer {
     width:20%;
+    clear:both;
     margin: 0 auto;
-    margin-top:2%;
+    padding-top:2%;
     
+}
+
+#listmarkers ul {
+    list-style-type:none;
+}
+#listmarkers li {
+    margin-bottom:10px;
+    text-align:right;
 }
