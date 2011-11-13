@@ -13,6 +13,7 @@
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"></script>
     <script type="text/javascript" src="libs/chosen.jquery.js"></script>
     <script type="text/javascript" src="arrows.js"></script>
+    <script type="text/javascript" src="intersection.js" charset="utf-8" ></script>
     
     
     <script id="lineList" type="text/html">
@@ -38,11 +39,11 @@
         })();
 
     </script>
-    
 </head>
 
 <body>
     <h3>Mapa de ônibus de Fortaleza</h3>
+    Para filtrar as linhas adicione um marcador por onde o onibus deve passar clicando no mapa no local, para mudar o local desse marcador apenas clique e arraste, para remover esse marcador clique 2x no marcador.
     <div id="listlines">
     </div>
     <div id="map_canvas"></div>
@@ -73,7 +74,6 @@
     <script>
         ich.grabTemplates();
         
-        
         var Map = Backbone.Model.extend({
             
             initialize : function() {
@@ -85,6 +85,15 @@
                 }
                 
                 this.map = new google.maps.Map(document.getElementById("map_canvas"), this.myOptions);
+                markers = [];
+                this.markers = markers;
+
+                google.maps.event.addListener(this.map, 'click', function(mouse) {
+                  marker = new Marker({position: mouse.latLng});
+                  markers.push(marker);
+                  marker.update();
+                });
+
                 this.setArrows=new ArrowHandler(this.map);
                 this.lines=[];
                 this.fetch();
@@ -130,9 +139,68 @@
                 this.name=name;
                 this.fetch();
             },
+            getMap : function(){
+              return this.map;
+            },
+            getMarkers : function(){
+              return this.markers;
+            },
         });
         
-        
+         var Marker = Backbone.Model.extend({
+            initialize : function(options) {
+               var markerBone = this;
+               var marker = new google.maps.Marker({position: options['position'] ,map: busMap.getMap() , draggable: true});
+               this.marker = marker;
+
+               google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
+                 markerBone.update();
+               });
+
+                
+               google.maps.event.addListener(this.marker, 'dblclick', function() {
+                 marker.setMap(null);
+                 var mrkX = busMap.getMarkers().indexOf(markerBone);
+                 if (mrkX!=-1) busMap.getMarkers().splice(mrkX,1); 
+                 markerBone.update();
+                });
+
+            },
+            url:function() {
+               return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG"+this.marker.position+",1000))&jsonCallback=?"
+            },
+            parse : function(response) {
+              response.table.rows=_.flatten(response.table.rows);
+              response.table.rows=_.reject(response.table.rows,function(row) {
+                    if(row.split("-")[2]==" Volta") {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                return response;
+              },
+              update : function(){
+                 this.fetch({success: function(model,response){
+                    updateLineList();
+                 }});
+              },
+        });       
+
+        var updateLineList = function(){
+          this.toJSON = function(){
+            var markers_routes = busMap.getMarkers().map(function(mark){return mark.attributes.table.rows});
+            var rotas = arrayIntersection(markers_routes);
+            return {table: {rows: rotas.map(function(row) {
+              var array=row.split("-");
+              return { num: array[0],label: array[0]+array[1]};
+            })}};
+          };
+          var lineListView = new LineListView({model : this})
+          lineListView.render();
+          return lineListView;
+        };
 
         var LineList = Backbone.Model.extend({
             _view : null,
@@ -168,7 +236,7 @@
         var LineListView = Backbone.View.extend({
             el : $("#listlines"),
             render: function() {
-                this.el.append(ich.lineList(this.model.toJSON()));
+                this.el.html(ich.lineList(this.model.toJSON()));
                 $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                      busMap.navigate("line/"+$(".chzn-select").val(),true);
                 });
@@ -192,6 +260,14 @@
             index : function() {
             },
             
+            getMarkers : function(){
+               return this._map.getMarkers();
+            },
+
+            getMap : function(){
+               return this._map.getMap();
+            },
+
             displayLine : function(name) {
                 this._map.displayLine(name);
             }
@@ -201,7 +277,9 @@
         var busMap=new BusMap();
         
         Backbone.history.start();
-        
+
+
+
     </script>
 
 </body>
