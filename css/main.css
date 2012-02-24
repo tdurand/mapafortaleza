@@ -1,0 +1,39 @@
+body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+
+#map_canvas img {
+        max-width:none;
+      }
+
+      body {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+      }
+
+.container-fluid,.span12.map-hack,
+.row-fluid.map-hack,.content { height: inherit; }
+
+.container-fluid,.span12.map-hack,
+.row-fluid.map-hack,.sidebar { height:inherit; }
+
+div.lines {
+  overflow: auto;
+  height:60%;
+}
+
+.map {
+  height:75%;
+}
+
+.chzn-select {
+  width:100%;
+}
+
+/* Overthrow CSS:
+Enable overflow: auto on elements with overthrow class when html element has overthrow class too */
+.overthrow-enabled .lines {
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+}
