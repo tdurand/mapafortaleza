@@ -64,6 +64,24 @@ function init() {
             this.setArrows=new ArrowHandler(this.map);
             this.lines=[];
             this.fetch();
+
+            this.drawingManager = new google.maps.drawing.DrawingManager({
+              drawingMode: google.maps.drawing.OverlayType.MARKER,
+              drawingControl: true,
+              drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_LEFT,
+                drawingModes: [google.maps.drawing.OverlayType.MARKER]
+              },
+              markerOptions: {
+                draggable : true
+              },
+            });
+
+            google.maps.event.addListener(this.drawingManager, 'markercomplete', function(marker) {
+                busMap._markerList.add(marker);
+            });
+
+            this.drawingManager.setMap(this.map);
         },
         url:function() {
             //HACK because etufor data set is not consistent
@@ -110,9 +128,25 @@ function init() {
     });
     
      var Marker = Backbone.Model.extend({
-        initialize : function() {
+        initialize : function(marker) {
            var markerBone = this;
-           this.marker = new google.maps.Marker({position: busMap.getMap().center ,map: busMap.getMap() , draggable: true});
+           this.marker = marker;
+
+           this.markerOptions = {
+                map: this.marker.map,
+                distance: 0.5, // Starting distance in km.
+                maxDistance: 2500, // Twitter has a max distance of 2500km.
+                color: '#000000',
+                fillColor: '#5599bb',
+                fillOpacity: '0.3',
+                activeColor: '#5599bb',
+                sizerIcon: new google.maps.MarkerImage('img/resize-off.png'),
+                activeSizerIcon: new google.maps.MarkerImage('img/resize.png')
+            }
+
+            //Attach DistanceWidgetto the marker
+            this.distancewidget=new DistanceWidget(this.marker,this.markerOptions);
+
            google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
              markerBone.fetch({success: function(model,response){
                 busMap._markerList.updateLineList();

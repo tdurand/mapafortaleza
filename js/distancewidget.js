@@ -10,6 +10,7 @@ function DistanceWidget(marker,opt_options) {
   var options = opt_options || {};
 
   this.setValues(options);
+  this.map=marker.map;
 
   this.set('position', marker.getPosition());
 
@@ -40,7 +41,7 @@ function DistanceWidget(marker,opt_options) {
   var me = this;
   google.maps.event.addListener(marker, 'dblclick', function() {
     // When a user double clicks on the icon fit to the map to the bounds
-    map.fitBounds(me.get('bounds'));
+    this.map.fitBounds(me.get('bounds'));
   });
 }
 DistanceWidget.prototype = new google.maps.MVCObject();
