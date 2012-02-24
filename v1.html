@@ -1,0 +1,328 @@
+<html>
+<head>
+    <meta charset="utf-8">
+        
+    <title>Mapa de ônibus de Fortaleza</title>
+    
+    <link rel="stylesheet" type="text/css" href="libs/chosen.css" />
+    <link rel="stylesheet" type="text/css" href="style/gh-buttons.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <script type="text/javascript" src="libs/underscore-min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="libs/icanhaz.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="libs/backbone-min.js" charset="utf-8" ></script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&libraries=geometry"></script>
+    <script type="text/javascript" src="libs/chosen.jquery.js"></script>
+    <script type="text/javascript" src="arrows.js"></script>
+    <script type="text/javascript" src="intersection.js" charset="utf-8" ></script>
+    
+    
+    <script id="lineList" type="text/html">
+        <p><strong>Escolhe uma linha :</strong> <select data-placeholder="Escolhe uma linha" class="chzn-select">
+        {{#table}}
+            {{#rows}}
+                <option value="{{num}}">{{label}}</option>
+            {{/rows}}
+        {{/table}}
+        </select></p>
+    </script>
+    
+    <script id="markerList" type="text/html">
+        <ul>
+            {{#models}}
+                <li><button class="button icon remove danger" onClick="busMap._markerList.removeByIndex({{index}})">Ponto {{num}}</button></li>
+            {{/models}}
+        </ul>
+    </script>
+    
+    <script type="text/javascript">
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-26151767-1']);
+        _gaq.push(['_trackPageview']);
+      
+        (function() {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+    </script>
+</head>
+
+<body>
+    <h3>Mapa de ônibus de Fortaleza</h3>
+    <div id="wrapper">
+        <div id="filter">
+        <h4>Filtrar linhas:</h4>
+        <p class="description justify"><i>Filtrar a lista de linhas pela adição de pontos onde o ônibus tem que passar (< 1 km).</i></p>
+        <button class="button icon pin big" onClick="busMap._markerList.add(new Marker());">Addicionar ponto</button>
+        <div id="listmarkers"></div>
+        </div>
+        <div id="map">
+            <div id="listlines">
+            </div>
+            <div id="map_canvas"></div>
+        </div>
+    </div>
+    
+    <div id="map_footer">
+        <!-- AddThis Button BEGIN -->
+<div class="addthis_toolbox addthis_default_style ">
+<a href="http://www.addthis.com/bookmark.php?v=250&amp;pubid=ra-4e8d941115aebb57" class="addthis_button_compact">Share</a>
+<span class="addthis_separator">|</span>
+<a class="addthis_button_preferred_1"></a>
+<a class="addthis_button_preferred_2"></a>
+<a class="addthis_button_preferred_3"></a>
+<a class="addthis_button_preferred_4"></a>
+</div>
+<script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4e8d941115aebb57"></script>
+<!-- AddThis Button END -->
+    </div>
+    <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4e8d941115aebb57"></script>
+    <div id="about">
+        <h4>Sobre o aplicativo</h4>
+        <ul>
+        <li>Os dados são do <a href="http://www.fortaleza.ce.gov.br/etufor/index.php?option=com_content&task=view&id=278">etufor</a></li>
+        <li><em>Os dados não são atualizados automaticamente. (Última actualização: 2011/10/05)</em></li>
+        <li>Você pode pesquisar as linhas passando por uma rua <a href="http://www.fortaleza.ce.gov.br/etufor/index.php?option=com_etuforonibusitinerarios">aqui</a></li>
+        <li>Fontes do aplicativo no <a href="https://github.com/tdurand/mapafortaleza/">Github</a> (pode enviar <a href="https://github.com/tdurand/mapafortaleza/issues/new">sugestão de funcionalidade</a>)</li>
+        </ul>
+        <h4>Contribuidores</h4>
+        <ul>
+            <li><a href="https://github.com/regismesquita">Regis David Souza Mesquita</a> (<a href="https://twitter.com/#!/regismesquita">@regismesquita</a>): Sistema de filtragem pela posição </li>
+            <li><a href="https://github.com/tdurand">Thibault Durand</a> (<a href="https://twitter.com/#!/tibbb">@tibbb</a>): Criador da aplicação </li>
+        <ul>
+    </div>
+    <script>
+        ich.grabTemplates();
+        
+        var Map = Backbone.Model.extend({
+            
+            initialize : function() {
+                this.myLatlng = new google.maps.LatLng(-3.71969,-38.52562);
+                this.myOptions = {
+                  zoom: 13,
+                  center: this.myLatlng,
+                  mapTypeId: google.maps.MapTypeId.ROADMAP
+                }
+                
+                this.map = new google.maps.Map(document.getElementById("map_canvas"), this.myOptions);
+                this.setArrows=new ArrowHandler(this.map);
+                this.lines=[];
+                this.fetch();
+            },
+            url:function() {
+                //HACK because etufor data set is not consistent
+                if(this.name!=undefined && this.name.length==2) {
+                    this.name=this.name+" -";
+                }
+                return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 1628071 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?"
+            },
+            parse : function(response) {
+                var setArrows=this.setArrows;
+                var map=this.map;
+                var lines=this.lines;
+                
+                //remove previous lines
+                _.each(lines,function(line) {
+                    line.setMap(null);
+                });
+                
+                //remove all previous arrows
+                _.each(setArrows.arrows,function(arrow) {
+                    arrow.setMap(null);
+                });
+                //reinit set of arrows
+                setArrows.arrows=[];
+                
+                //Parse response
+                response.table.rows=_.flatten(response.table.rows);
+                //For each coordinate, create a gmap.Latlng object, and display it
+                response.table.rows=_(response.table.rows).each(function (row){
+                    row.coordinates=_(row.coordinates).map(function(coord) {
+                        return new google.maps.LatLng(coord[1],coord[0]);
+                    });
+                    lines.push(createPoly(row.coordinates,"midline",setArrows,map));
+                });
+                
+            },
+            displayLine : function(name) {
+                this.name=name;
+                this.fetch();
+            },
+            getMap : function(){
+              return this.map;
+            },
+        });
+        
+         var Marker = Backbone.Model.extend({
+            initialize : function() {
+               var markerBone = this;
+               this.marker = new google.maps.Marker({position: busMap.getMap().center ,map: busMap.getMap() , draggable: true});
+               google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
+                 markerBone.fetch({success: function(model,response){
+                    busMap._markerList.updateLineList();
+                 }});
+                });
+                markerBone.fetch({success: function(model,response){
+                        busMap._markerList.updateLineList();
+                }});
+            },
+            url:function() {
+               return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG"+this.marker.position+",1000))&jsonCallback=?"
+            },
+            parse : function(response) {
+              response.table.rows=_.flatten(response.table.rows);
+              response.table.rows=_.reject(response.table.rows,function(row) {
+                    if(row.split("-")[2]==" Volta") {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                return response;
+              },
+             
+        });
+         
+        var MarkerList = Backbone.Collection.extend({
+                _view : null,
+                model: Marker,
+                updateLineList : function() {
+                    this._view=new MarkerListView({model : this});
+                    this._view.render();
+                    if(this.models.length>0) {
+                    busMap._lineList._view=new LineListView({model : this.computeLineList()});
+                    busMap._lineList._view.renderJSON();
+                    }
+                    else {
+                        busMap._lineList.reinit();
+                    }
+                    
+                },
+                computeLineList : function(){
+                    var markers_routes = this.models.map(function(mark){return mark.attributes.table.rows});
+                    var rotas = arrayIntersection(markers_routes);
+                    return {table: {rows: rotas.map(function(row) {
+                      var array=row.split("-");
+                      return { num: array[0],label: array[0]+array[1]};
+                    })}};
+                },
+                toJSON : function() {
+                    var listMarkers=this.models;
+                    return {models: _.map(listMarkers,function(mark,i) {
+                                    return {num: i+1,index: i};
+                                    })};
+                },
+                removeByIndex : function(index) {
+                    var markerToRemove=this.at(index);
+                    markerToRemove.marker.setMap(null);
+                    this.remove(markerToRemove);
+                    this.updateLineList();
+                }
+        });
+        
+        var MarkerListView = Backbone.View.extend({
+            el : $("#listmarkers"),
+            render : function() {
+                //console.log(this.model.toJSON());
+                this.el.html(ich.markerList(this.model.toJSON()));
+                return this;
+            }
+            
+        });
+
+        var LineList = Backbone.Model.extend({
+            _view : null,
+            
+            initialize : function() {
+                this.fetch();
+                this.bind("change", function() {
+                    this._view=new LineListView({model : this});
+                    this._view.render();
+                });
+            },
+            url:function() {
+                return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071&jsonCallback=?"
+            },
+            parse : function(response) {
+                response.table.rows=_.flatten(response.table.rows);
+                response.table.rows=_.reject(response.table.rows,function(row) {
+                    if(row.split("-")[2]==" Volta") {
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                response.table.rows=_.map(response.table.rows,function(row) {
+                    var array=row.split("-");
+                    return { num: array[0],label: array[0]+array[1]};
+                });
+                return response;
+            },
+            reinit : function() {
+                this.fetch();
+                this._view=new LineListView({model : this});
+                this._view.render();
+            }
+        });
+        
+        var LineListView = Backbone.View.extend({
+            el : $("#listlines"),
+            render: function() {
+                this.el.html(ich.lineList(this.model.toJSON()));
+                $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
+                     busMap.navigate("line/"+$(".chzn-select").val(),true);
+                });
+                busMap.navigate("line/"+$(".chzn-select").val(),true);
+                return this;
+            },
+            renderJSON: function() {
+                this.el.html(ich.lineList(this.model));
+                $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
+                     busMap.navigate("line/"+$(".chzn-select").val(),true);
+                });
+                busMap.navigate("line/"+$(".chzn-select").val(),true);
+                return this;
+            }
+        });
+        
+        var BusMap = Backbone.Router.extend({
+            
+            routes : {
+                "":             "index",
+                "line/:name":   "displayLine"
+            },
+            
+            initialize : function() {
+                this._lineList=new LineList();
+                this._markerList=new MarkerList();
+                this._map=new Map();
+            },
+            
+            index : function() {
+            },
+            
+            getMap : function(){
+               return this._map.getMap();
+            },
+
+            displayLine : function(name) {
+                this._map.displayLine(name);
+            }
+            
+        });
+        
+        var busMap=new BusMap();
+        
+        Backbone.history.start();
+
+
+
+    </script>
+
+</body>
+</html>
