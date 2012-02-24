@@ -161,13 +161,6 @@ function init() {
                 }    
               }); 
             });
-            /*
-            google.maps.event.addListener(this.distanceWidget, 'position_changed', function() {
-                markerBone.fetch({success: function(model,response){
-                busMap._markerList.updateLineList();
-                
-                }}); 
-            }); */
             
            google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
              console.log("Drag end, update list");
@@ -192,20 +185,15 @@ function init() {
         },
         parse : function(response) {
           response.table.rows=_.flatten(response.table.rows);
-          /*
-          response.table.rows=_.reject(response.table.rows,function(row) {
-                
-                if(row.split("-")[2]==" Volta") {
-                    return true;
-                }
-                else {
-                    return false;
-                }
+          //we remove the last part of the 
+          response.table.rows=_.map(response.table.rows,function(row) {
+              var array=row.split("-");
+              return array[0]+"-"+array[1];
+          });
+          //throw away duplicate values
+          response.table.rows=_.uniq(response.table.rows);
 
-            });
-            */
-            console.log("Marker "+this.marker.getPosition()+" : "+response.table.rows);
-            return response;
+          return response;
           },
          
     });
@@ -228,12 +216,8 @@ function init() {
             },
             computeLineList : function(){
                 var markers_routes = this.models.map(function(mark){return mark.attributes.table.rows});
-                var markers_routes2 = this.models.map(function(mark){return mark.attributes.table.rows});
-                var rotas = arrayIntersection(markers_routes);
-                var linesIntersection=_.intersection.apply(this,markers_routes2);
-                console.log("rotas: "+rotas);
-                console.log("linesIntersection: "+linesIntersection);
-                return {table: {rows: rotas.map(function(row) {
+                var linesIntersection=_.intersection.apply(this,markers_routes);
+                return {table: {rows: linesIntersection.map(function(row) {
                   var array=row.split("-");
                   return { num: array[0],label: array[0]+array[1]};
                 })}};
@@ -256,7 +240,6 @@ function init() {
     var MarkerListView = Backbone.View.extend({
         el : $("#listmarkers"),
         render : function() {
-            //console.log(this.model.toJSON());
             this.$el.html(ich.markerList(this.model.toJSON()));
             return this;
         }
