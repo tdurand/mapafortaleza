@@ -37,12 +37,6 @@ function DistanceWidget(marker,opt_options) {
   this.bindTo('distance', radiusWidget);
   // Bind to the radius widget bounds property
   this.bindTo('bounds', radiusWidget);
-
-  var me = this;
-  google.maps.event.addListener(marker, 'dblclick', function() {
-    // When a user double clicks on the icon fit to the map to the bounds
-    this.map.fitBounds(me.get('bounds'));
-  });
 }
 DistanceWidget.prototype = new google.maps.MVCObject();
 

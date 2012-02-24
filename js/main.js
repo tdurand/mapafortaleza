@@ -145,30 +145,66 @@ function init() {
             }
 
             //Attach DistanceWidgetto the marker
-            this.distancewidget=new DistanceWidget(this.marker,this.markerOptions);
+            this.distanceWidget=new DistanceWidget(this.marker,this.markerOptions);
+            var currentDistanceWidget=this.distanceWidget
 
-           google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
-             markerBone.fetch({success: function(model,response){
-                busMap._markerList.updateLineList();
-             }});
+            google.maps.event.addListener(this.distanceWidget, 'distance_changed', function() {
+                busMap._markerList._radius=currentDistanceWidget.get('distance')*1000;
+                console.log(busMap._markerList._radius+" m");
+                markerBone.fetch({
+                success: function(model,response){
+                  busMap._markerList.updateLineList();
+                  console.log("Success updating list");
+                },
+                error: function() {
+                  console.log("Error while updating list");
+                }    
+              }); 
             });
+            /*
+            google.maps.event.addListener(this.distanceWidget, 'position_changed', function() {
+                markerBone.fetch({success: function(model,response){
+                busMap._markerList.updateLineList();
+                
+                }}); 
+            }); */
+            
+           google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
+             console.log("Drag end, update list");
+             markerBone.fetch({
+                success: function(model,response){
+                  busMap._markerList.updateLineList();
+                  console.log("Success updating list");
+                },
+                error: function() {
+                  console.log("Error while updating list");
+                }    
+              }); 
+
+            });
+
             markerBone.fetch({success: function(model,response){
                     busMap._markerList.updateLineList();
             }});
         },
         url:function() {
-           return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG"+this.marker.position+",1000))&jsonCallback=?"
+           return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG("+this.marker.getPosition().lat()+","+this.marker.getPosition().lng()+"),"+busMap._markerList._radius+"))&jsonCallback=?"
         },
         parse : function(response) {
           response.table.rows=_.flatten(response.table.rows);
+          /*
           response.table.rows=_.reject(response.table.rows,function(row) {
+                
                 if(row.split("-")[2]==" Volta") {
                     return true;
                 }
                 else {
                     return false;
                 }
+
             });
+            */
+            console.log("Marker "+this.marker.getPosition()+" : "+response.table.rows);
             return response;
           },
          
@@ -181,6 +217,7 @@ function init() {
                 this._view=new MarkerListView({model : this});
                 this._view.render();
                 if(this.models.length>0) {
+                console.log("Rerender the lines");
                 busMap._lineList._view=new LineListView({model : this.computeLineList()});
                 busMap._lineList._view.renderJSON();
                 }
@@ -191,11 +228,16 @@ function init() {
             },
             computeLineList : function(){
                 var markers_routes = this.models.map(function(mark){return mark.attributes.table.rows});
+                var markers_routes2 = this.models.map(function(mark){return mark.attributes.table.rows});
                 var rotas = arrayIntersection(markers_routes);
+                var linesIntersection=_.intersection.apply(this,markers_routes2);
+                console.log("rotas: "+rotas);
+                console.log("linesIntersection: "+linesIntersection);
                 return {table: {rows: rotas.map(function(row) {
                   var array=row.split("-");
                   return { num: array[0],label: array[0]+array[1]};
                 })}};
+
             },
             toJSON : function() {
                 var listMarkers=this.models;
@@ -236,6 +278,7 @@ function init() {
         },
         parse : function(response) {
             response.table.rows=_.flatten(response.table.rows);
+            
             response.table.rows=_.reject(response.table.rows,function(row) {
                 if(row.split("-")[2]==" Volta") {
                     return true;
@@ -244,10 +287,12 @@ function init() {
                     return false;
                 }
             });
+            
             response.table.rows=_.map(response.table.rows,function(row) {
                 var array=row.split("-");
                 return { num: array[0],label: array[0]+array[1]};
             });
+
             return response;
         },
         reinit : function() {
@@ -261,7 +306,7 @@ function init() {
         el : $("#listlines"),
         render: function() {
             this.$el.html(ich.lineList(this.model.toJSON()));
-            $("#listlinestable").html(ich.lineListTable(this.model.toJSON())); //HACK
+            //$("#listlinestable").html(ich.lineListTable(this.model.toJSON())); //HACK
             $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                  busMap.navigate("line/"+$(".chzn-select").val(),true);
             });
@@ -270,7 +315,6 @@ function init() {
         },
         renderJSON: function() {
             this.$el.html(ich.lineList(this.model));
-            $("#")
             $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                  busMap.navigate("line/"+$(".chzn-select").val(),true);
             });
@@ -289,6 +333,7 @@ function init() {
         initialize : function() {
             this._lineList=new LineList();
             this._markerList=new MarkerList();
+            this._markerList._radius=500; //initialize radius
             this._map=new Map();
         },
         
