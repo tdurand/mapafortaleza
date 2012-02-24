@@ -8,7 +8,7 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="less/bootstrap.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="libs/chosen.css" />
     <style>
       body {
@@ -110,7 +110,7 @@
                     </button></p>
                  <h4>Linhas:</h4>
                  <div class="lines">
-                 <table class="table table-striped table-bordered table-condensed">
+                 <table class="table table-striped table-bordered table-condensed listlines">
                   <tr>
                     <td>38 - Parangaba Papicu</td>
                   </tr>
@@ -178,7 +178,7 @@
                   </div>
                </div>
                <div class="span10 content">
-                 <!-- <div id="map_canvas" class="map"></div>   -->
+                  <div id="map_canvas" class="map"></div>
                </div>
              </div>
        </div>
@@ -197,9 +197,7 @@
     <script type="text/javascript" src="js/overthrow.js"></script>
     <script type="text/javascript" charset="utf-8">
 
-        $(".addmarker").live("click",function() {
-             
-        });
+        
       
         function init() {
             var myLatlng = new google.maps.LatLng(-3.71969,-38.52562);
@@ -240,6 +238,10 @@
             });
 
             drawingManager.setMap(map)
+
+            $(".addmarker").live("click",function() {
+             drawingManager.setDrawingMode(google.maps.drawing.OverlayType.MARKER);
+            });
             
         }
 
