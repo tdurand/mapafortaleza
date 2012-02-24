@@ -131,6 +131,7 @@ function init() {
         initialize : function(marker) {
            var markerBone = this;
            this.marker = marker;
+           this._radius=500; //initialize radius
 
            this.markerOptions = {
                 map: this.marker.map,
@@ -147,10 +148,15 @@ function init() {
             //Attach DistanceWidgetto the marker
             this.distanceWidget=new DistanceWidget(this.marker,this.markerOptions);
             var currentDistanceWidget=this.distanceWidget
-
+            /*
             google.maps.event.addListener(this.distanceWidget, 'distance_changed', function() {
-                busMap._markerList._radius=currentDistanceWidget.get('distance')*1000;
-                console.log(busMap._markerList._radius+" m");
+                //busMap._markerList._radius=currentDistanceWidget.get('distance')*1000;
+                //console.log(busMap._markerList._radius+" m");
+                /*
+                markerBone.fetch => externalize in a function 
+                changer l'event sur un distance_changed end
+                */
+                /*
                 markerBone.fetch({
                 success: function(model,response){
                   busMap._markerList.updateLineList();
@@ -160,7 +166,14 @@ function init() {
                   console.log("Error while updating list");
                 }    
               }); 
+            }); */
+
+            google.maps.event.addListener(this.distanceWidget, 'bound_changed', function() {
+                console.log("DISTANCE CHANGED");
+                busMap._markerList._radius=currentDistanceWidget.get('distance')*1000;
+                console.log(busMap._markerList._radius+" m"); 
             });
+
             
            google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
              console.log("Drag end, update list");
@@ -181,7 +194,7 @@ function init() {
             }});
         },
         url:function() {
-           return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG("+this.marker.getPosition().lat()+","+this.marker.getPosition().lng()+"),"+busMap._markerList._radius+"))&jsonCallback=?"
+           return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG("+this.marker.getPosition().lat()+","+this.marker.getPosition().lng()+"),"+this._radius+"))&jsonCallback=?"
         },
         parse : function(response) {
           response.table.rows=_.flatten(response.table.rows);
@@ -316,7 +329,6 @@ function init() {
         initialize : function() {
             this._lineList=new LineList();
             this._markerList=new MarkerList();
-            this._markerList._radius=500; //initialize radius
             this._map=new Map();
         },
         
