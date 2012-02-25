@@ -186,8 +186,9 @@ ich.grabTemplates();
             },
             removeByIndex : function(index) {
                 var markerToRemove=this.at(index);
-                markerToRemove.marker.setMap(null);
                 this.remove(markerToRemove);
+                markerToRemove.marker.setMap(null);
+                markerToRemove.distanceWidget=null;
                 this.updateLineList();
             }
     });

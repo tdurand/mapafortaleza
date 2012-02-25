@@ -31,6 +31,13 @@ div.lines {
   width:100%;
 }
 
+ul.listmarkers {
+  list-style-type:none;
+}
+ul.listmarkers li {
+  margin-bottom:0.8em;
+}
+
 /* Overthrow CSS:
 Enable overflow: auto on elements with overthrow class when html element has overthrow class too */
 .overthrow-enabled .lines {

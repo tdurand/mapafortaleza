@@ -52,7 +52,7 @@
           <div class="span10">
             <div id="listlines">
               <p><strong>Escolhe uma linha :</strong> <select data-placeholder="Escolhe uma linha" class="chzn-select">
-                              <option value="">Carregando...</option>
+                  <option value="">Carregando...</option>
               </select></p>
             </div>
           </div>
@@ -126,11 +126,14 @@
     </script>
     
     <script id="markerList" type="text/html">
-        <ul>
+      <ul class="listmarkers">
             {{#models}}
-                <li><button class="button icon remove danger" onClick="busMap._markerList.removeByIndex({{index}})">Ponto {{num}}</button></li>
+                <li><div class="btn-group">
+                    <a class="btn" href="#">Ponto {{num}}</a>
+                    <a class="btn btn-remove-marker" href="#" data-index="{{index}}" onClick="busMap._markerList.removeByIndex({{index}})"><i class="icon-remove"></i></a>
+                </div></li>
             {{/models}}
-        </ul>
+      </ul>
     </script>
     
     <script type="text/javascript">
