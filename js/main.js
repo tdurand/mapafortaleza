@@ -106,60 +106,23 @@ ich.grabTemplates();
             //Attach DistanceWidgetto the marker
             this.distanceWidget=new DistanceWidget(this.marker,this.markerOptions);
             var currentDistanceWidget=this.distanceWidget;
-            /*
-            google.maps.event.addListener(this.distanceWidget, 'distance_changed', function() {
-                //busMap._markerList._radius=currentDistanceWidget.get('distance')*1000;
-                //console.log(busMap._markerList._radius+" m");
-                /*
-                markerBone.fetch => externalize in a function 
-                changer l'event sur un distance_changed end
-                */
-                /*
-                markerBone.fetch({
-                success: function(model,response){
-                  busMap._markerList.updateLineList();
-                  console.log("Success updating list");
-                },
-                error: function() {
-                  console.log("Error while updating list");
-                }    
-              }); 
-            }); */
 
             google.maps.event.addListener(currentDistanceWidget.radiusWidget.circle, 'active_changed', function() {
                 me._radius=currentDistanceWidget.get('distance')*1000;
                 console.log(me._radius+" m"); 
 
                 console.log("Radius modified, update list");
-                me.fetch({
-                success: function(model,response){
-                  busMap._markerList.updateLineList();
-                  console.log("Success updating list");
-                },
-                error: function() {
-                  console.log("Error while updating list");
-                }    
-                }); 
+                me.fetchLines(); 
             });
 
             
            google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
              console.log("Drag end, update list");
-             me.fetch({
-                success: function(model,response){
-                  busMap._markerList.updateLineList();
-                  console.log("Success updating list");
-                },
-                error: function() {
-                  console.log("Error while updating list");
-                }    
-              }); 
+             me.fetchLines();
 
             });
 
-            this.fetch({success: function(model,response){
-                    busMap._markerList.updateLineList();
-            }});
+            this.fetchLines();
         },
         url:function() {
            return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG("+this.marker.getPosition().lat()+","+this.marker.getPosition().lng()+"),"+this._radius+"))&jsonCallback=?"
@@ -175,7 +138,18 @@ ich.grabTemplates();
           response.table.rows=_.uniq(response.table.rows);
 
           return response;
-          },
+        },
+        fetchLines:function() {
+            this.fetch({
+                success: function(model,response){
+                  busMap._markerList.updateLineList();
+                  console.log("Success updating list");
+                },
+                error: function() {
+                  console.log("Error while updating list");
+                }    
+              }); 
+        }
          
     });
      
