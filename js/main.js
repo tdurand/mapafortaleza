@@ -1,54 +1,4 @@
-/*
-function init() {
-            var myLatlng = new google.maps.LatLng(-3.71969,-38.52562);
-            var myOptions = {
-              zoom: 13,
-              center: myLatlng,
-              mapTypeId: google.maps.MapTypeId.ROADMAP
-            }
-            
-            var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-
-            var options = {
-                map: map,
-                distance: 0.5, // Starting distance in km.
-                maxDistance: 2500, // Twitter has a max distance of 2500km.
-                color: '#000000',
-                fillColor: '#5599bb',
-                fillOpacity: '0.3',
-                activeColor: '#5599bb',
-                sizerIcon: new google.maps.MarkerImage('img/resize-off.png'),
-                activeSizerIcon: new google.maps.MarkerImage('img/resize.png')
-            }
-
-            var drawingManager = new google.maps.drawing.DrawingManager({
-              drawingMode: google.maps.drawing.OverlayType.MARKER,
-              drawingControl: true,
-              drawingControlOptions: {
-                position: google.maps.ControlPosition.TOP_LEFT,
-                drawingModes: [google.maps.drawing.OverlayType.MARKER]
-              },
-              markerOptions: {
-                draggable : true
-              },
-            });
-
-            google.maps.event.addListener(drawingManager, 'markercomplete', function(marker) {
-                new DistanceWidget(marker,options);
-            });
-
-            drawingManager.setMap(map)
-
-            $(".addmarker").live("click",function() {
-             drawingManager.setDrawingMode(google.maps.drawing.OverlayType.MARKER);
-            });
-            
-}
-
-        google.maps.event.addDomListener(window, 'load', init);
-*/
-
-    ich.grabTemplates();
+ich.grabTemplates();
     
     var Map = Backbone.Model.extend({
         
@@ -66,7 +16,7 @@ function init() {
             this.fetch();
 
             this.drawingManager = new google.maps.drawing.DrawingManager({
-              drawingMode: google.maps.drawing.OverlayType.MARKER,
+              drawingMode: null,
               drawingControl: true,
               drawingControlOptions: {
                 position: google.maps.ControlPosition.TOP_LEFT,
@@ -82,6 +32,14 @@ function init() {
             });
 
             this.drawingManager.setMap(this.map);
+            var drawingManager=this.drawingManager;
+
+            $(".addmarker").bind("touch click",function() {
+                busMap._markerList.add(new google.maps.Marker({position: busMap.getMap().center ,
+                                                                map: busMap.getMap() ,
+                                                                draggable: true}));
+            });
+
         },
         url:function() {
             //HACK because etufor data set is not consistent
@@ -129,7 +87,7 @@ function init() {
     
      var Marker = Backbone.Model.extend({
         initialize : function(marker) {
-           var markerBone = this;
+           var me = this;
            this.marker = marker;
            this._radius=500; //initialize radius
 
@@ -147,7 +105,7 @@ function init() {
 
             //Attach DistanceWidgetto the marker
             this.distanceWidget=new DistanceWidget(this.marker,this.markerOptions);
-            var currentDistanceWidget=this.distanceWidget
+            var currentDistanceWidget=this.distanceWidget;
             /*
             google.maps.event.addListener(this.distanceWidget, 'distance_changed', function() {
                 //busMap._markerList._radius=currentDistanceWidget.get('distance')*1000;
@@ -168,16 +126,26 @@ function init() {
               }); 
             }); */
 
-            google.maps.event.addListener(this.distanceWidget, 'bound_changed', function() {
-                console.log("DISTANCE CHANGED");
-                busMap._markerList._radius=currentDistanceWidget.get('distance')*1000;
-                console.log(busMap._markerList._radius+" m"); 
+            google.maps.event.addListener(currentDistanceWidget.radiusWidget.circle, 'active_changed', function() {
+                me._radius=currentDistanceWidget.get('distance')*1000;
+                console.log(me._radius+" m"); 
+
+                console.log("Radius modified, update list");
+                me.fetch({
+                success: function(model,response){
+                  busMap._markerList.updateLineList();
+                  console.log("Success updating list");
+                },
+                error: function() {
+                  console.log("Error while updating list");
+                }    
+                }); 
             });
 
             
            google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
              console.log("Drag end, update list");
-             markerBone.fetch({
+             me.fetch({
                 success: function(model,response){
                   busMap._markerList.updateLineList();
                   console.log("Success updating list");
@@ -189,7 +157,7 @@ function init() {
 
             });
 
-            markerBone.fetch({success: function(model,response){
+            this.fetch({success: function(model,response){
                     busMap._markerList.updateLineList();
             }});
         },

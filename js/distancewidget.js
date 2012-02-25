@@ -22,6 +22,8 @@ function DistanceWidget(marker,opt_options) {
   // Create a new radius widget
   var radiusWidget = new RadiusWidget(options);
 
+  this.radiusWidget=radiusWidget;
+
   // Bind the radius widget properties.
   radiusWidget.bindTo('center', this, 'position');
   radiusWidget.bindTo('map', this);
@@ -37,6 +39,7 @@ function DistanceWidget(marker,opt_options) {
   this.bindTo('distance', radiusWidget);
   // Bind to the radius widget bounds property
   this.bindTo('bounds', radiusWidget);
+
 }
 DistanceWidget.prototype = new google.maps.MVCObject();
 
@@ -52,11 +55,14 @@ function RadiusWidget(options) {
     strokeWeight: 2
   });
 
+  this.circle=circle;
+
   this.set('distance', options['distance'] || 50);
   this.set('fillColor', options['fillColor'] || '#000000');
   this.set('fillOpacity', options['fillOpacity'] || 0.1)
   this.set('active', false);
   this.bindTo('bounds', circle);
+  this.bindTo('active', circle);
 
   circle.bindTo('center', this);
   circle.bindTo('zIndex', this);
@@ -83,6 +89,8 @@ RadiusWidget.prototype.addSizer_ = function() {
     raiseOnDrag: false
   });
 
+  this.sizer=sizer;
+
   sizer.bindTo('zIndex', this);
   sizer.bindTo('map', this);
   sizer.bindTo('icon', this);
@@ -101,8 +109,8 @@ RadiusWidget.prototype.addSizer_ = function() {
   google.maps.event.addListener(sizer, 'dragend', function() {
     me.set('active', false);
   });
-};
 
+};
 
 /**
  * Update the radius when the distance has changed.
