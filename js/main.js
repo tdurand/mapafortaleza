@@ -46,7 +46,7 @@ ich.grabTemplates();
             if(this.name!=undefined && this.name.length==2) {
                 this.name=this.name+" -";
             }
-            return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 1628071 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?"
+            return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 3062503 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?"
         },
         parse : function(response) {
             var setArrows=this.setArrows;
@@ -125,7 +125,7 @@ ich.grabTemplates();
             this.fetchLines();
         },
         url:function() {
-           return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG("+this.marker.getPosition().lat()+","+this.marker.getPosition().lng()+"),"+this._radius+"))&jsonCallback=?"
+           return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 3062503 WHERE ST_INTERSECTS(geometry,CIRCLE(LATLNG("+this.marker.getPosition().lat()+","+this.marker.getPosition().lng()+"),"+this._radius+"))&jsonCallback=?"
         },
         parse : function(response) {
           response.table.rows=_.flatten(response.table.rows);
@@ -204,16 +204,19 @@ ich.grabTemplates();
 
     var LineList = Backbone.Model.extend({
         _view : null,
+        _viewSidebar
         
         initialize : function() {
             this.fetch();
             this.bind("change", function() {
-                this._view=new LineListView({model : this});
+                this._view=new LineListSelectView({model : this});
+                this._view.render();
+                this._view=new LineListSidebarView({model : this});
                 this._view.render();
             });
         },
         url:function() {
-            return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 1628071&jsonCallback=?"
+            return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 3062503&jsonCallback=?"
         },
         parse : function(response) {
             response.table.rows=_.flatten(response.table.rows);
