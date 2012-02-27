@@ -1,6 +1,6 @@
-var map={};
+var app={};
 
-map.main = function() {
+app.main = function() {
 
     var Map = Backbone.Model.extend({
 
@@ -184,10 +184,8 @@ var MarkerList = Backbone.Collection.extend({
             this._view.render();
             if(this.models.length>0) {
             console.log("Rerender the lines");
-            busMap._lineList._view=new LineListSelectView({model : this.computeLineList()});
-            busMap._lineList._view.renderJSON();
-            busMap._lineList._viewSidebar=new LineListSidebarView({model : this.computeLineList()});
-            busMap._lineList._viewSidebar.renderJSON();
+            busMap._lineList.set(this.computeLineList());
+            busMap._lineList.updateViews();
             }
             else {
                 busMap._lineList.reinit();
@@ -197,11 +195,16 @@ var MarkerList = Backbone.Collection.extend({
         computeLineList : function(){
             var markers_routes = this.models.map(function(mark){return mark.attributes.table.rows});
             var linesIntersection=_.intersection.apply(this,markers_routes);
-            return {table: {rows: linesIntersection.map(function(row) {
-              var array=row.split("-");
-              return { num: array[0],label: array[0]+array[1]};
-            })}};
-
+            var response={
+                table: {
+                        rows: linesIntersection.map(function(row) {
+                          var array=row.split("-");
+                          return { num: array[0],label: array[0]+array[1]};
+                        })
+                },
+                _totalLines : linesIntersection.length
+            };
+            return response;
         },
         toJSON : function() {
             var listMarkers=this.models;
@@ -236,8 +239,8 @@ var LineList = Backbone.Model.extend({
         this.bind("change", function() {
             this._view=new LineListSelectView({model : this});
             this._view.render();
-            this._view=new LineListSidebarView({model : this});
-            this._view.render();
+            this._viewSidebar=new LineListSidebarView({model : this});
+            this._viewSidebar.render();
         });
     },
     url:function() {
@@ -260,10 +263,18 @@ var LineList = Backbone.Model.extend({
             return { num: array[0],label: array[0]+array[1]};
         });
 
+        response._totalLines=response.table.rows.length
+
         return response;
     },
     reinit : function() {
         this.fetch();
+        this._view=new LineListSelectView({model : this});
+        this._view.render();
+        this._viewSidebar=new LineListSidebarView({model:this});
+        this._viewSidebar.render();
+    },
+    updateViews : function() {
         this._view=new LineListSelectView({model : this});
         this._view.render();
         this._viewSidebar=new LineListSidebarView({model:this});
@@ -298,7 +309,7 @@ var LineListSidebarView = Backbone.View.extend({
     el : $("#linelistsidebar"),
     render: function() {
         this.$el.html(ich.lineListSidebar(this.model.toJSON()));
-        $("#linelistsidebar td").live("click touch",function () {
+        $("#linelistsidebar td").live("click touch",function (e) {
              $("#linelistsidebar td").removeClass("selected");
              $(this).addClass("selected");
              var num=$(this).attr("data-num");
@@ -352,5 +363,9 @@ var busMap=new BusMap();
 
 Backbone.history.start();
 
+return {
+    map : busMap
 }
+
+}();
 

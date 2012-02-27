@@ -70,10 +70,9 @@
                       Addicionar ponto
                     </button></p>
                     <div id="listmarkers"></div>
-                 <h4>Linhas relativas:</h4>
-                 <div id="linelistsidebar" class="lines">
-                    
-                 </div>
+                    <div id="linelistsidebar" class="lines">
+                     <h4>Linhas:</h4> 
+                    </div>
                </div>
                <div class="span10 content">
                   <div id="map_canvas" class="map"></div>
@@ -117,6 +116,7 @@
     </script>
 
     <script id="lineListSidebar" type="text/html">
+        <h4>Linhas ({{_totalLines}}): </h4>
         <table class="table table-striped table-bordered table-condensed listlines">
         {{#table}}
            {{#rows}}
@@ -133,7 +133,7 @@
             {{#models}}
                 <li><div class="btn-group">
                     <a class="btn" href="#">Ponto {{num}}</a>
-                    <a class="btn btn-remove-marker" href="#" data-index="{{index}}" onClick="busMap._map._fitBounds=true;busMap._markerList.removeByIndex({{index}});"><i class="icon-remove"></i></a>
+                    <a class="btn btn-remove-marker" href="#" data-index="{{index}}" onClick="app.main.map._map._fitBounds=true;app.main.map._markerList.removeByIndex({{index}});"><i class="icon-remove"></i></a>
                 </div></li>
             {{/models}}
       </ul>
@@ -154,7 +154,6 @@
         $(document).ready(function() {
             // Handler for .ready() called.
             ich.grabTemplates();
-            map.main();
         });
 
     </script>
