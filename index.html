@@ -50,8 +50,10 @@
       <div class="row-fluid">
           <div class="span2">-</div>
           <div class="span10">
-            <div id="listlines">
-              <p><strong>Escolhe uma linha :</strong> <select data-placeholder="Escolhe uma linha" class="chzn-select">
+            <div id="linelistselect">
+              <h4>Escolhe uma linha :</h4>
+              <p>
+              <select data-placeholder="Escolhe uma linha" class="chzn-select">
                   <option value="">Carregando...</option>
               </select></p>
             </div>
@@ -69,7 +71,7 @@
                     </button></p>
                     <div id="listmarkers"></div>
                  <h4>Linhas relativas:</h4>
-                 <div id="listlinestable" class="lines">
+                 <div id="linelistsidebar" class="lines">
                     
                  </div>
                </div>
@@ -79,9 +81,9 @@
              </div>
        </div>
        </div>
-       //Hack : Fix issue of chrome on OSX : http://code.google.com/p/chromium/issues/detail?id=113358
+       <!-- Hack : Fix issue of chrome on OSX : http://code.google.com/p/chromium/issues/detail?id=113358 -->
        <img src="http://maps.gstatic.com/mapfiles/openhand_8_8.cur" style="display:none" />
-       //End hack
+       <!-- //End hack -->
        
     </div> <!-- /container -->
 
@@ -103,8 +105,9 @@
     <script type="text/javascript" src="js/arrows.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
 
-    <script id="lineList" type="text/html">
-        <p><strong>Escolhe uma linha :</strong> <select data-placeholder="Escolhe uma linha" class="chzn-select">
+    <script id="lineListSelect" type="text/html">
+        <h4>Escolhe uma linha :</h4> 
+        <p><select data-placeholder="Escolhe uma linha" class="chzn-select">
         {{#table}}
             {{#rows}}
                 <option value="{{num}}">{{label}}</option>
@@ -113,12 +116,12 @@
         </select></p>
     </script>
 
-    <script id="lineListTable" type="text/html">
+    <script id="lineListSidebar" type="text/html">
         <table class="table table-striped table-bordered table-condensed listlines">
         {{#table}}
            {{#rows}}
               <tr>
-                    <td><span num="{{num}}">{{label}}</span></td>
+                    <td data-num="{{num}}">{{label}}</td>
               </tr>
            {{/rows}}                  
         {{/table}}
