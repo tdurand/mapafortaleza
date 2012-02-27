@@ -98,8 +98,10 @@ app.main = function() {
         }
 
         this._fitBounds=false;
+        $(".loading").addClass("hidden");
     },
     displayLine : function(name) {
+        $(".loading").removeClass("hidden");
         this.name=name;
         this.fetch();
     },
@@ -170,6 +172,7 @@ app.main = function() {
       return response;
     },
     fetchLines:function() {
+        $(".loading").removeClass("hidden");
         this.fetch({
             success: function(model,response){
               busMap._markerList.updateLineList();
