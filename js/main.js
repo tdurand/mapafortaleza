@@ -40,7 +40,7 @@ app.main = function() {
         this.drawingManager.setMap(this.map);
         var drawingManager=this.drawingManager;
 
-        $(".addmarker").bind("touch click",function() {
+        $(".addmarker").bind("touchstart click",function() {
             busMap._markerList.add(new google.maps.Marker({position: busMap.getMap().center ,
                                                             map: busMap.getMap() ,
                                                             draggable: true}));
@@ -159,6 +159,13 @@ app.main = function() {
       });
       //throw away duplicate values
       response.table.rows=_.uniq(response.table.rows);
+
+      if(response.table.rows.length==0) {
+        $(".nolinesfound").removeClass("hidden");
+      }
+      else {
+        $(".nolinesfound").addClass("hidden");
+      }
 
       return response;
     },
@@ -286,7 +293,7 @@ var LineListSelectView = Backbone.View.extend({
     el : $("#linelistselect"),
     render: function() {
         this.$el.html(ich.lineListSelect(this.model.toJSON()));
-        $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
+        $(".chzn-select").chosen({no_results_text: "Não encontrou linhas correspondante"}).change(function () {
              busMap._map._fitBounds=true;
              busMap.navigate("line/"+$(".chzn-select").val(),true);
         });
@@ -294,22 +301,13 @@ var LineListSelectView = Backbone.View.extend({
         busMap.navigate("line/"+$(".chzn-select").val(),true);
         return this;
     },
-    renderJSON: function() {
-        this.$el.html(ich.lineListSelect(this.model));
-        $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
-             busMap._map._fitBounds=true;
-             busMap.navigate("line/"+$(".chzn-select").val(),true);
-        });
-        busMap.navigate("line/"+$(".chzn-select").val(),true);
-        return this;
-    }
 });
 
 var LineListSidebarView = Backbone.View.extend({
     el : $("#linelistsidebar"),
     render: function() {
         this.$el.html(ich.lineListSidebar(this.model.toJSON()));
-        $("#linelistsidebar td").live("click touch",function (e) {
+        $("#linelistsidebar td").live("click touchstart",function (e) {
              $("#linelistsidebar td").removeClass("selected");
              $(this).addClass("selected");
              var num=$(this).attr("data-num");
@@ -318,19 +316,8 @@ var LineListSidebarView = Backbone.View.extend({
              $(".chzn-select").val(num);
              $(".chzn-select").trigger("liszt:updated");
         });
-        //busMap.navigate("line/"+$(".chzn-select").val(),true);
         return this;
     },
-    renderJSON: function() {
-        this.$el.html(ich.lineListSidebar(this.model));
-        /*
-        $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
-             busMap.navigate("line/"+$(".chzn-select").val(),true);
-        });
-        busMap.navigate("line/"+$(".chzn-select").val(),true);
-        */
-        return this;
-    }
 });
 
 var BusMap = Backbone.Router.extend({
