@@ -161,8 +161,10 @@ ich.grabTemplates();
                 this._view.render();
                 if(this.models.length>0) {
                 console.log("Rerender the lines");
-                busMap._lineList._view=new LineListView({model : this.computeLineList()});
+                busMap._lineList._view=new LineListSelectView({model : this.computeLineList()});
                 busMap._lineList._view.renderJSON();
+                busMap._lineList._viewSidebar=new LineListSidebarView({model : this.computeLineList()});
+                busMap._lineList._viewSidebar.renderJSON();
                 }
                 else {
                     busMap._lineList.reinit();
@@ -239,16 +241,17 @@ ich.grabTemplates();
         },
         reinit : function() {
             this.fetch();
-            this._view=new LineListView({model : this});
+            this._view=new LineListSelectView({model : this});
             this._view.render();
+            this._viewSidebar=new LineListSidebarView({model:this});
+            this._viewSidebar.render();
         }
     });
     
-    var LineListView = Backbone.View.extend({
-        el : $("#listlines"),
+    var LineListSelectView = Backbone.View.extend({
+        el : $("#linelistselect"),
         render: function() {
-            this.$el.html(ich.lineList(this.model.toJSON()));
-            //$("#listlinestable").html(ich.lineListTable(this.model.toJSON())); //HACK
+            this.$el.html(ich.lineListSelect(this.model.toJSON()));
             $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                  busMap.navigate("line/"+$(".chzn-select").val(),true);
             });
@@ -256,11 +259,35 @@ ich.grabTemplates();
             return this;
         },
         renderJSON: function() {
-            this.$el.html(ich.lineList(this.model));
+            this.$el.html(ich.lineListSelect(this.model));
             $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                  busMap.navigate("line/"+$(".chzn-select").val(),true);
             });
             busMap.navigate("line/"+$(".chzn-select").val(),true);
+            return this;
+        }
+    });
+
+    var LineListSidebarView = Backbone.View.extend({
+        el : $("#linelistsidebar"),
+        render: function() {
+            this.$el.html(ich.lineListSidebar(this.model.toJSON()));
+            $("#linelistsidebar td").live("click,touch",function () {
+                 var num=$(this).attr("data-num");
+                 alert(num);
+                 //busMap.navigate("line/"+$(".chzn-select").val(),true);
+            });
+            //busMap.navigate("line/"+$(".chzn-select").val(),true);
+            return this;
+        },
+        renderJSON: function() {
+            this.$el.html(ich.lineListSidebar(this.model));
+            /*
+            $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
+                 busMap.navigate("line/"+$(".chzn-select").val(),true);
+            });
+            busMap.navigate("line/"+$(".chzn-select").val(),true);
+            */
             return this;
         }
     });
