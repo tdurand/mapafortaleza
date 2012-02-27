@@ -67,13 +67,27 @@ ich.grabTemplates();
             
             //Parse response
             response.table.rows=_.flatten(response.table.rows);
+
+            //if line found
+            if(response.table.rows.length>0) {
+
+            //Bounds to get the center of the line
+            var bounds = new google.maps.LatLngBounds();
+
             //For each coordinate, create a gmap.Latlng object, and display it
             response.table.rows=_(response.table.rows).each(function (row){
                 row.coordinates=_(row.coordinates).map(function(coord) {
-                    return new google.maps.LatLng(coord[1],coord[0]);
+                    var coordinate=new google.maps.LatLng(coord[1],coord[0]);
+                    bounds.extend(coordinate);
+                    return coordinate;
+
                 });
                 lines.push(createPoly(row.coordinates,"midline",setArrows,map));
             });
+
+            this.map.fitBounds(bounds);
+
+            }
             
         },
         displayLine : function(name) {
@@ -206,7 +220,7 @@ ich.grabTemplates();
 
     var LineList = Backbone.Model.extend({
         _view : null,
-        _viewSidebar
+        _viewSidebar: null,
         
         initialize : function() {
             this.fetch();
@@ -255,6 +269,7 @@ ich.grabTemplates();
             $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
                  busMap.navigate("line/"+$(".chzn-select").val(),true);
             });
+            //Fix to see why it's navigating by default to this line
             busMap.navigate("line/"+$(".chzn-select").val(),true);
             return this;
         },
@@ -272,10 +287,11 @@ ich.grabTemplates();
         el : $("#linelistsidebar"),
         render: function() {
             this.$el.html(ich.lineListSidebar(this.model.toJSON()));
-            $("#linelistsidebar td").live("click,touch",function () {
+            $("#linelistsidebar td").live("click touch",function () {
                  var num=$(this).attr("data-num");
-                 alert(num);
-                 //busMap.navigate("line/"+$(".chzn-select").val(),true);
+                 busMap.navigate("line/"+num,true);
+                 $(".chzn-select").val(num);
+                 $(".chzn-select").trigger("liszt:updated");
             });
             //busMap.navigate("line/"+$(".chzn-select").val(),true);
             return this;
