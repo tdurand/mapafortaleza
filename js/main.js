@@ -1,6 +1,8 @@
 ich.grabTemplates();
     
     var Map = Backbone.Model.extend({
+
+        _fitBounds : false,
         
         initialize : function() {
             this.myLatlng = new google.maps.LatLng(-3.71969,-38.52562);
@@ -14,6 +16,7 @@ ich.grabTemplates();
             this.setArrows=new ArrowHandler(this.map);
             this.lines=[];
             this.fetch();
+            var theMap=this;
 
             this.drawingManager = new google.maps.drawing.DrawingManager({
               drawingMode: null,
@@ -29,6 +32,7 @@ ich.grabTemplates();
 
             google.maps.event.addListener(this.drawingManager, 'markercomplete', function(marker) {
                 busMap._markerList.add(marker);
+
             });
 
             this.drawingManager.setMap(this.map);
@@ -85,10 +89,13 @@ ich.grabTemplates();
                 lines.push(createPoly(row.coordinates,"midline",setArrows,map));
             });
 
-            this.map.fitBounds(bounds);
+            if(this._fitBounds) { 
+                this.map.fitBounds(bounds);
+            }
 
             }
-            
+
+            this._fitBounds=false;
         },
         displayLine : function(name) {
             this.name=name;
@@ -267,6 +274,7 @@ ich.grabTemplates();
         render: function() {
             this.$el.html(ich.lineListSelect(this.model.toJSON()));
             $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
+                 busMap._map._fitBounds=true;
                  busMap.navigate("line/"+$(".chzn-select").val(),true);
             });
             //Fix to see why it's navigating by default to this line
@@ -276,6 +284,7 @@ ich.grabTemplates();
         renderJSON: function() {
             this.$el.html(ich.lineListSelect(this.model));
             $(".chzn-select").chosen({no_results_text: "No results matched"}).change(function () {
+                 busMap._map._fitBounds=true;
                  busMap.navigate("line/"+$(".chzn-select").val(),true);
             });
             busMap.navigate("line/"+$(".chzn-select").val(),true);
@@ -289,6 +298,7 @@ ich.grabTemplates();
             this.$el.html(ich.lineListSidebar(this.model.toJSON()));
             $("#linelistsidebar td").live("click touch",function () {
                  var num=$(this).attr("data-num");
+                 busMap._map._fitBounds=true;
                  busMap.navigate("line/"+num,true);
                  $(".chzn-select").val(num);
                  $(".chzn-select").trigger("liszt:updated");

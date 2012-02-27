@@ -133,7 +133,7 @@
             {{#models}}
                 <li><div class="btn-group">
                     <a class="btn" href="#">Ponto {{num}}</a>
-                    <a class="btn btn-remove-marker" href="#" data-index="{{index}}" onClick="busMap._markerList.removeByIndex({{index}})"><i class="icon-remove"></i></a>
+                    <a class="btn btn-remove-marker" href="#" data-index="{{index}}" onClick="busMap._map._fitBounds=true;busMap._markerList.removeByIndex({{index}});"><i class="icon-remove"></i></a>
                 </div></li>
             {{/models}}
       </ul>
