@@ -97,17 +97,27 @@ app.main = function() {
 
         }
 
+        this.ready();
+
         this._fitBounds=false;
-        $(".loading").addClass("hidden");
     },
     displayLine : function(name) {
-        $(".loading").removeClass("hidden");
+        this.loading();
         this.name=name;
         this.fetch();
     },
     getMap : function(){
       return this.map;
     },
+    loading : function() {
+        $("body").css("cursor","progress");  //TODO : Refacto in Less file
+        $(".loading").removeClass("hidden");
+    },
+    ready : function() {
+        $(".loading").addClass("hidden");
+        $("body").css("cursor","auto");
+    }
+
 });
 
  var Marker = Backbone.Model.extend({
@@ -172,7 +182,7 @@ app.main = function() {
       return response;
     },
     fetchLines:function() {
-        $(".loading").removeClass("hidden");
+        busMap._map.loading();
         this.fetch({
             success: function(model,response){
               busMap._markerList.updateLineList();
@@ -193,9 +203,9 @@ var MarkerList = Backbone.Collection.extend({
             this._view=new MarkerListView({model : this});
             this._view.render();
             if(this.models.length>0) {
-            console.log("Rerender the lines");
-            busMap._lineList.set(this.computeLineList());
-            busMap._lineList.updateViews();
+                console.log("Rerender the lines");
+                busMap._lineList.set(this.computeLineList());
+                busMap._lineList.updateViews();
             }
             else {
                 busMap._lineList.reinit();
@@ -300,8 +310,6 @@ var LineListSelectView = Backbone.View.extend({
              busMap._map._fitBounds=true;
              busMap.navigate("line/"+$(".chzn-select").val(),true);
         });
-        //Fix to see why it's navigating by default to this line
-        busMap.navigate("line/"+$(".chzn-select").val(),true);
         return this;
     },
 });
@@ -337,6 +345,7 @@ var BusMap = Backbone.Router.extend({
     },
     
     index : function() {
+        busMap.navigate("line/"+$(".chzn-select").val(),true);
     },
     
     getMap : function(){

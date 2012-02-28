@@ -18,9 +18,13 @@ body {
 .container-fluid,.span12.map-hack,
 .row-fluid.map-hack,.sidebar { height:inherit; }
 
-div.lines {
-  overflow: auto;
+div.lineListSidebar {
   height:60%;
+}
+
+div.lineListSidebarContent {
+  height:100%;
+  overflow: auto;
 }
 
 .map {
