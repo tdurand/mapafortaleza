@@ -148,15 +148,11 @@ app.main = function() {
 
         google.maps.event.addListener(currentDistanceWidget.radiusWidget.circle, 'active_changed', function() {
             me._radius=currentDistanceWidget.get('distance')*1000;
-            console.log(me._radius+" m"); 
-
-            console.log("Radius modified, update list");
             me.fetchLines(); 
         });
 
         
        google.maps.event.addListener(this.marker, 'dragend', function(mouse) {
-         console.log("Drag end, update list");
          me.fetchLines();
 
         });
@@ -200,10 +196,11 @@ var MarkerList = Backbone.Collection.extend({
             this._view=new MarkerListView({model : this});
             this._view.render();
             var listLines=this.computeLineList();
+            //if there is marker on the map
             if(this.models.length>0) {
-                console.log("Rerender the lines");
                 busMap._lineList.set(this.computeLineList());
                 busMap._lineList.updateViews();
+                //if there are lines corresponding
                 if(listLines.table.rows.length>0) {
                     busMap.displayLine(listLines.table.rows[0].num)
                     //HACK: no more marker TODO: change the logic
@@ -310,7 +307,6 @@ var LineList = Backbone.Model.extend({
 var LineListSelectView = Backbone.View.extend({
     el : $("#linelistselect"),
     render: function() {
-        console.log("renderSelect");
         this.$el.html(ich.lineListSelect(this.model.toJSON()));
         var me=this;
         $(".chzn-select").chosen().change(function () {
@@ -321,7 +317,6 @@ var LineListSelectView = Backbone.View.extend({
         return this;
     },
     setSelected : function(numLine) {
-        console.log("setSelected: "+numLine);
         $(".chzn-select").val(numLine+' ');
         $(".chzn-select").trigger("liszt:updated");
     },
@@ -331,10 +326,12 @@ var LineListSidebarView = Backbone.View.extend({
     el : $("#linelistsidebar"),
     render: function() {
         this.$el.html(ich.lineListSidebar(this.model.toJSON()));
-        $("#linelistsidebar td").live("click touchstart",function (e) { 
+        $("#linelistsidebar td").bind("click touchstart",function (e) { 
+             console.log("click event");
              var num=$(this).attr("data-num");
              busMap._map._fitBounds=true;
              busMap.displayLine(num);
+             return false;
         });
         return this;
     },
@@ -367,7 +364,6 @@ var BusMap = Backbone.Router.extend({
 
 
     displayLine : function(num) {
-        console.log(num);
         busMap.navigate("line/"+num);
         this._map.displayLine(num);
         this._lineList._viewSelect.setSelected(num);
