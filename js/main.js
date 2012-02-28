@@ -301,6 +301,7 @@ var LineList = Backbone.Model.extend({
         this._viewSelect.render();
         this._viewSidebar=new LineListSidebarView({model:this});
         this._viewSidebar.render();
+        busMap.trigger("finishListLoading");
     }
 });
 
@@ -327,7 +328,6 @@ var LineListSidebarView = Backbone.View.extend({
     render: function() {
         this.$el.html(ich.lineListSidebar(this.model.toJSON()));
         $("#linelistsidebar td").bind("click touchstart",function (e) { 
-             console.log("click event");
              var num=$(this).attr("data-num");
              busMap._map._fitBounds=true;
              busMap.displayLine(num);
@@ -345,16 +345,18 @@ var BusMap = Backbone.Router.extend({
     
     routes : {
         "":             "index",
-        "line/:name":   "displayLine"
+        "line/:num":    "displayLine",
+        "about":        "about",
     },
     
     initialize : function() {
         this._lineList=new LineList();
         this._markerList=new MarkerList();
-        this._map=new Map();
+        this._map=new Map({ _fitBounds: true});
     },
     
     index : function() {
+        this.switchToPage("main");
     },
     
     getMap : function(){
@@ -364,10 +366,14 @@ var BusMap = Backbone.Router.extend({
 
 
     displayLine : function(num) {
+        this.on("finishListLoading",function() {
+            this._lineList._viewSelect.setSelected(num);
+            this._lineList._viewSidebar.setSelected(num);
+        })
         busMap.navigate("line/"+num);
         this._map.displayLine(num);
-        this._lineList._viewSelect.setSelected(num);
-        this._lineList._viewSidebar.setSelected(num);
+        //this._lineList._viewSelect.setSelected(num);
+        //this._lineList._viewSidebar.setSelected(num);
     },
 
     noLinesFound : function() {
@@ -378,6 +384,17 @@ var BusMap = Backbone.Router.extend({
 
     linesFound : function() {
         $(".nolinesfound").addClass("hidden");
+    },
+
+    about : function() {
+        this.switchToPage("about");
+    },
+
+    switchToPage : function(destination) {
+        $(".page").hide();
+        $(".nav li").removeClass("active");
+        $("#"+destination).show();
+        $("."+destination).addClass("active");
     }
 });
 

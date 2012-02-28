@@ -37,16 +37,15 @@
           <a class="brand" href="#">Mapa de onibus de Fortaleza</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Mapa</a></li>
-              <li><a href="#about">Sobre o aplicativo</a></li>
+              <li class="main active"><a href="">Mapa</a></li>
+              <li class="about"><a href="#about">Sobre o aplicativo</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
 
-    
-    <div class="container-fluid">
+    <div id="main" class="container-fluid page">
       <div class="row-fluid">
           <div class="span2" style="color:white;">
             -
@@ -84,7 +83,7 @@
                </div>
                <div class="span10 content">
                   <div class="nolinesfound alert alert-error hidden">
-                    <strong>Nenhuma linha correspondente !</strong> Pode mover pontos para tentar encontrar uma rota.
+                    <strong>Nenhuma linha correspondente !</strong> Tenta mover os pontos para tentar encontrar uma rota.
                   </div>
                   <div id="map_canvas" class="map"></div>
                </div>
@@ -96,6 +95,34 @@
        <!-- //End hack -->
        
     </div> <!-- /container -->
+
+    <div id="about" class="container-fluid page">
+        <div class="row-fluid">
+          <div class="span2" style="color:white;">
+            -
+          </div>
+          <div class="span8">
+            <h4>Sobre o aplicativo</h4>
+            <ul>
+                <li>Os dados são da <a href="http://www.fortaleza.ce.gov.br/etufor/index.php?option=com_content&task=view&id=278">etufor</a></li>
+                <li><em>Os dados não são atualizados automaticamente. (Última actualização: 27/02/2012)</em></li>
+                <li>Você pode pesquisar as linhas passando por uma rua <a href="http://www.fortaleza.ce.gov.br/etufor/index.php?option=com_etuforonibusitinerarios">aqui</a></li>
+                <li>Fontes do aplicativo no <a href="https://github.com/tdurand/mapafortaleza/">Github</a> (pode enviar <a href="https://github.com/tdurand/mapafortaleza/issues/new">sugestão de funcionalidade</a>)</li>
+                </ul>
+                <h4>Contribuidores</h4>
+                <ul>
+                    <li><a href="https://github.com/regismesquita">Regis David Souza Mesquita</a> (<a href="https://twitter.com/#!/regismesquita">@regismesquita</a>): Primeira versão do sistema de filtragem pela posição </li>
+                    <li><a href="https://github.com/tdurand">Thibault Durand</a> (<a href="https://twitter.com/#!/tibbb">@tibbb</a>): Criador da aplicação </li>
+                </ul>
+            <h4>Comentarios</h4>
+            <div id="disqus_thread"></div>
+            <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+            </div>
+          <div class="span2">
+          </div>
+      </div>
+    </div>
+
 
     <!-- Le javascript
     ================================================== -->
@@ -171,6 +198,18 @@
             ich.grabTemplates();
         });
 
+    </script>
+
+    <script type="text/javascript">
+    /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+    var disqus_shortname = 'mapafortaleza'; // required: replace example with your forum shortname
+
+    /* * * DON'T EDIT BELOW THIS LINE * * */
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = 'http://' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
     </script>
 
 
