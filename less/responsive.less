@@ -13,6 +13,13 @@
 // -------------------------------------------------------------
 
 
+.loadingIcon() {
+  background-image: url("../img/ajax-loader.gif");
+  width:32px;
+  height:32px;
+  background-position:center bottom;
+}
+
 // REPEAT VARIABLES & MIXINS
 // -------------------------
 // Required since we compile the responsive stuff separately
@@ -165,6 +172,10 @@
   // Input grid
   #inputGridSystem > .generate(12, 42px, 20px);
 
+  .loading {
+    .loadingIcon
+  }
+
 }
 
 
@@ -298,6 +309,9 @@
   .nav-collapse.collapse {
     height: auto !important;
   }
+  .loading {
+    .loadingIcon
+  }
 }
 
 
@@ -325,3 +339,5 @@
   }
 
 }
+
+

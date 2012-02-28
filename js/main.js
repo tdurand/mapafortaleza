@@ -306,7 +306,7 @@ var LineListSelectView = Backbone.View.extend({
     el : $("#linelistselect"),
     render: function() {
         this.$el.html(ich.lineListSelect(this.model.toJSON()));
-        $(".chzn-select").chosen({no_results_text: "Não encontrou linhas correspondante"}).change(function () {
+        $(".chzn-select").change(function () {
              busMap._map._fitBounds=true;
              busMap.navigate("line/"+$(".chzn-select").val(),true);
         });
