@@ -172,11 +172,11 @@ app.main = function() {
       //throw away duplicate values
       response.table.rows=_.uniq(response.table.rows);
 
-      if(response.table.rows.length==0) {
-        $(".nolinesfound").removeClass("hidden");
+      if(response.table.rows.length==0) {    
+        busMap.noLinesFound();
       }
       else {
-        $(".nolinesfound").addClass("hidden");
+        busMap.linesFound();
       }
 
       return response;
@@ -204,8 +204,12 @@ var MarkerList = Backbone.Collection.extend({
             this._view.render();
             if(this.models.length>0) {
                 console.log("Rerender the lines");
+                var listLines=this.computeLineList();
                 busMap._lineList.set(this.computeLineList());
                 busMap._lineList.updateViews();
+                if(listLines.table.rows.length>0) {
+                    busMap.displayLine(listLines.table.rows[0].num)
+                }
             }
             else {
                 busMap._lineList.reinit();
@@ -251,17 +255,16 @@ var MarkerListView = Backbone.View.extend({
 });
 
 var LineList = Backbone.Model.extend({
-    _view : null,
+    _viewSelect : null,
     _viewSidebar: null,
+    _totalLines : null,
     
     initialize : function() {
-        this.fetch();
+        var me=this;
         this.bind("change", function() {
-            this._view=new LineListSelectView({model : this});
-            this._view.render();
-            this._viewSidebar=new LineListSidebarView({model : this});
-            this._viewSidebar.render();
+            me.updateViews();
         });
+        this.fetch();
     },
     url:function() {
         return "https://www.google.com/fusiontables/api/query?sql=SELECT name FROM 3062503&jsonCallback=?"
@@ -283,20 +286,17 @@ var LineList = Backbone.Model.extend({
             return { num: array[0],label: array[0]+array[1]};
         });
 
-        response._totalLines=response.table.rows.length
+        response._totalLines=response.table.rows.length;
 
         return response;
     },
     reinit : function() {
         this.fetch();
-        this._view=new LineListSelectView({model : this});
-        this._view.render();
-        this._viewSidebar=new LineListSidebarView({model:this});
-        this._viewSidebar.render();
+        this.updateViews();
     },
     updateViews : function() {
-        this._view=new LineListSelectView({model : this});
-        this._view.render();
+        this._viewSelect=new LineListSelectView({model : this});
+        this._viewSelect.render();
         this._viewSidebar=new LineListSidebarView({model:this});
         this._viewSidebar.render();
     }
@@ -305,12 +305,20 @@ var LineList = Backbone.Model.extend({
 var LineListSelectView = Backbone.View.extend({
     el : $("#linelistselect"),
     render: function() {
+        console.log("renderSelect");
         this.$el.html(ich.lineListSelect(this.model.toJSON()));
-        $(".chzn-select").change(function () {
+        var me=this;
+        $(".chzn-select").chosen().change(function () {
              busMap._map._fitBounds=true;
-             busMap.navigate("line/"+$(".chzn-select").val(),true);
+             var num=$(".chzn-select").val();
+             busMap.displayLine(num);
         });
         return this;
+    },
+    setSelected : function(numLine) {
+        console.log("setSelected: "+numLine);
+        $(".chzn-select").val(numLine+' ');
+        $(".chzn-select").trigger("liszt:updated");
     },
 });
 
@@ -318,17 +326,17 @@ var LineListSidebarView = Backbone.View.extend({
     el : $("#linelistsidebar"),
     render: function() {
         this.$el.html(ich.lineListSidebar(this.model.toJSON()));
-        $("#linelistsidebar td").live("click touchstart",function (e) {
-             $("#linelistsidebar td").removeClass("selected");
-             $(this).addClass("selected");
+        $("#linelistsidebar td").live("click touchstart",function (e) { 
              var num=$(this).attr("data-num");
              busMap._map._fitBounds=true;
-             busMap.navigate("line/"+num,true);
-             $(".chzn-select").val(num);
-             $(".chzn-select").trigger("liszt:updated");
+             busMap.displayLine(num);
         });
         return this;
     },
+    setSelected: function(numLine) {
+        $("#linelistsidebar td").removeClass("selected");
+        $("#linelistsidebar td:contains("+numLine+")").addClass("selected");
+    }
 });
 
 var BusMap = Backbone.Router.extend({
@@ -345,17 +353,31 @@ var BusMap = Backbone.Router.extend({
     },
     
     index : function() {
-        busMap.navigate("line/"+$(".chzn-select").val(),true);
+        //busMap.navigate("line/"+$(".chzn-select").val(),true);
     },
     
     getMap : function(){
        return this._map.getMap();
     },
 
-    displayLine : function(name) {
-        this._map.displayLine(name);
+
+
+    displayLine : function(num) {
+        console.log(num);
+        busMap.navigate("line/"+num);
+        this._map.displayLine(num);
+        this._lineList._viewSelect.setSelected(num);
+        this._lineList._viewSidebar.setSelected(num);
+    },
+
+    noLinesFound : function() {
+        $(".nolinesfound").removeClass("hidden");
+        this._map.ready();
+    },
+
+    linesFound : function() {
+        $(".nolinesfound").addClass("hidden");
     }
-    
 });
 
 var busMap=new BusMap();
