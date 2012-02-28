@@ -55,21 +55,12 @@ app.main = function() {
         return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 3062503 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?"
     },
     parse : function(response) {
+        //Clear map
+        this.clear();
+
+        var lines=this.lines;
         var setArrows=this.setArrows;
         var map=this.map;
-        var lines=this.lines;
-        
-        //remove previous lines
-        _.each(lines,function(line) {
-            line.setMap(null);
-        });
-        
-        //remove all previous arrows
-        _.each(setArrows.arrows,function(arrow) {
-            arrow.setMap(null);
-        });
-        //reinit set of arrows
-        setArrows.arrows=[];
         
         //Parse response
         response.table.rows=_.flatten(response.table.rows);
@@ -116,6 +107,19 @@ app.main = function() {
     ready : function() {
         $(".loading").addClass("hidden");
         $("body").css("cursor","auto");
+    },
+    clear : function() {
+        //remove previous lines
+        _.each(this.lines,function(line) {
+            line.setMap(null);
+        });
+        
+        //remove all previous arrows
+        _.each(this.setArrows.arrows,function(arrow) {
+            arrow.setMap(null);
+        });
+        //reinit set of arrows
+        this.setArrows.arrows=[];
     }
 
 });
@@ -172,13 +176,6 @@ app.main = function() {
       //throw away duplicate values
       response.table.rows=_.uniq(response.table.rows);
 
-      if(response.table.rows.length==0) {    
-        busMap.noLinesFound();
-      }
-      else {
-        busMap.linesFound();
-      }
-
       return response;
     },
     fetchLines:function() {
@@ -202,17 +199,24 @@ var MarkerList = Backbone.Collection.extend({
         updateLineList : function() {
             this._view=new MarkerListView({model : this});
             this._view.render();
+            var listLines=this.computeLineList();
             if(this.models.length>0) {
                 console.log("Rerender the lines");
-                var listLines=this.computeLineList();
                 busMap._lineList.set(this.computeLineList());
                 busMap._lineList.updateViews();
                 if(listLines.table.rows.length>0) {
                     busMap.displayLine(listLines.table.rows[0].num)
+                    //HACK: no more marker TODO: change the logic
+                    busMap.linesFound();
+                }
+                else {
+                    busMap.noLinesFound();
                 }
             }
             else {
                 busMap._lineList.reinit();
+                //HACK: no more marker TODO: change the logic
+                busMap.linesFound();
             }
             
         },
@@ -293,6 +297,7 @@ var LineList = Backbone.Model.extend({
     reinit : function() {
         this.fetch();
         this.updateViews();
+        busMap._map.clear();
     },
     updateViews : function() {
         this._viewSelect=new LineListSelectView({model : this});
@@ -353,7 +358,6 @@ var BusMap = Backbone.Router.extend({
     },
     
     index : function() {
-        //busMap.navigate("line/"+$(".chzn-select").val(),true);
     },
     
     getMap : function(){
@@ -373,6 +377,7 @@ var BusMap = Backbone.Router.extend({
     noLinesFound : function() {
         $(".nolinesfound").removeClass("hidden");
         this._map.ready();
+        this._map.clear();
     },
 
     linesFound : function() {
