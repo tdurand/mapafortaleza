@@ -372,8 +372,8 @@ var BusMap = Backbone.Router.extend({
         })
         busMap.navigate("line/"+num);
         this._map.displayLine(num);
-        //this._lineList._viewSelect.setSelected(num);
-        //this._lineList._viewSidebar.setSelected(num);
+        this._lineList._viewSelect.setSelected(num);
+        this._lineList._viewSidebar.setSelected(num);
     },
 
     noLinesFound : function() {
