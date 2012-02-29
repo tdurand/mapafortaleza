@@ -249,7 +249,7 @@ var MarkerList = Backbone.Collection.extend({
 var MarkerListView = Backbone.View.extend({
     el : $("#listmarkers"),
     render : function() {
-        this.$($el).html(ich.markerList(this.model.toJSON()));
+        $(this.$el).html(ich.markerList(this.model.toJSON()));
         return this;
     }
     
@@ -308,7 +308,7 @@ var LineList = Backbone.Model.extend({
 var LineListSelectView = Backbone.View.extend({
     el : $("#linelistselect"),
     render: function() {
-        this.$($el).html(ich.lineListSelect(this.model.toJSON()));
+        $(this.$el).html(ich.lineListSelect(this.model.toJSON()));
         var me=this;
         $(".chzn-select").chosen().change(function () {
              busMap._map._fitBounds=true;
@@ -326,7 +326,7 @@ var LineListSelectView = Backbone.View.extend({
 var LineListSidebarView = Backbone.View.extend({
     el : $("#linelistsidebar"),
     render: function() {
-        this.$($el).html(ich.lineListSidebar(this.model.toJSON()));
+        $(this.$el).html(ich.lineListSidebar(this.model.toJSON()));
         $("#linelistsidebar td").bind("click touchstart",function (e) { 
              var num=$(this).attr("data-num");
              busMap._map._fitBounds=true;
