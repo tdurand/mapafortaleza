@@ -272,6 +272,15 @@ var LineList = Backbone.Model.extend({
     },
     parse : function(response) {
         response.table.rows=_.flatten(response.table.rows);
+
+        //if line found
+        if(response.table.rows.length>0) {
+
+            busMap.maintenanceMode(false);
+        }
+        else {
+            busMap.maintenanceMode(true);
+        }
         
         response.table.rows=_.reject(response.table.rows,function(row) {
             if(row.split("-")[2]==" Volta") {
@@ -384,6 +393,15 @@ var BusMap = Backbone.Router.extend({
 
     linesFound : function() {
         $(".nolinesfound").addClass("hidden");
+    },
+
+    maintenanceMode : function(active) {
+        if(active) {
+            $(".maintenance").removeClass("hidden");
+        }
+        else {
+            $(".maintenance").addClass("hidden");
+        }
     },
 
     about : function() {
