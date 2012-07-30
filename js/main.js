@@ -281,12 +281,16 @@ var LineList = Backbone.Model.extend({
         else {
             busMap.maintenanceMode(true);
         }
+
+        var rowTampon="";
         
         response.table.rows=_.reject(response.table.rows,function(row) {
-            if(row.split("-")[2]==" Volta") {
+            if(row.split("-")[2]==" Volta" && row.split("-")[1]==rowTampon) {
+                rowTampon=row.split("-")[1];
                 return true;
             }
             else {
+                rowTampon=row.split("-")[1];
                 return false;
             }
         });
