@@ -8,4 +8,4 @@ Application for visualizing bus lines of Fortaleza:
 * The application uses Google Fusion Table to manipulate data
 * Thanks to : "wolpil.de":http://www.wolfpil.de/v3/arrow-heads.html for the code of arrows for polylines
 
-_Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php, Copyright by tdurand, 2011_
+_Licensed under the CC BY-NC-SA 3.0 license: http://creativecommons.org/licenses/by-nc-sa/3.0/, Copyright by tdurand, 2012_
