@@ -55,7 +55,7 @@
           <div class="span2" style="color:white;">
             -
           </div>
-          <div class="span9">
+          <div class="span6">
             <div id="linelistselect">
               <h4>Escolhe uma linha :</h4>
               <p>
@@ -63,6 +63,15 @@
                   <option value="">Carregando...</option>
               </select>
             </p>
+            </div>
+          </div>
+          <div class="span3">
+            <div id="addressSearchForm">
+              <h4>Digite um destino :</h4>
+              <form id="searchAddress">
+                  <input type="text" id="address">
+                  <input type="submit" value="Buscar">
+              </form>
             </div>
           </div>
           <div class="span1">
@@ -92,6 +101,9 @@
                   </div>
                   <div class="maintenance alert alert-heading hidden">
                     <strong>Manutenção</strong> Atualizando os dados, por favor, aguarde alguns minutos...
+                  </div>
+                  <div class="noaddressfound alert alert-error hidden">
+                    <strong>Endereço não encontrado!</strong> Verifique se ele foi digitado corretamente.
                   </div>
                   <div id="map_canvas" class="map"></div>
                </div>
@@ -190,7 +202,7 @@
       <ul class="listmarkers">
             {{#models}}
                 <li><div class="btn-group">
-                    <a class="btn" href="#">Ponto {{num}}</a>
+                        <a class="btn" href="#">{{name}}</a>
                     <!-- TODO Refactoring -->
                     <a class="btn btn-remove-marker" href="#" data-index="{{index}}" onClick="app.main.map._map._fitBounds=true;app.main.map._markerList.removeByIndex({{index}});"><i class="icon-remove"></i></a>
                 </div></li>
