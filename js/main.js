@@ -46,6 +46,12 @@ app.main = function() {
                                                             draggable: true}));
         });
 
+        $("#searchAddress").bind("submit", function(e){
+            var address = document.getElementById('address').value;
+            busMap._mapAddressFinder.addMarkerAtAddress(address);
+            e.preventDefault();
+        });
+
     },
     url:function() {
         //HACK because etufor data set is not consistent
@@ -121,7 +127,41 @@ app.main = function() {
         //reinit set of arrows
         this.setArrows.arrows=[];
     }
+});
 
+var MapAddressFinder = Backbone.Model.extend({
+    _geocoder : new google.maps.Geocoder(),
+    _fortalezaBounds : new google.maps.LatLngBounds(new google.maps.LatLng(-3.87,-38.65),new google.maps.LatLng(-3.691682,-38.4)),
+
+    addMarkerAtAddress : function(address) {
+      this.locationForAddress(address,function(firstHitLocation){
+        busMap.getMap().setCenter(firstHitLocation);
+        busMap._markerList.add(new google.maps.Marker({ position: firstHitLocation,
+                                                        map: busMap.getMap(),
+                                                        draggable: true }));
+      });
+    },
+
+    forceResultsInBounds : function(results, bounds){
+      return _.select(results,function(result){
+        return bounds.contains(result.geometry.location);
+      });
+    },
+
+    locationForAddress : function(address,callback) {
+      var addressFinder = this;
+      this._geocoder.geocode( { 'address': address , 'bounds': this._fortalezaBounds , 'region': 'br'}, function(results, status) {
+
+       var resultsInFortaleza = addressFinder.forceResultsInBounds(results, addressFinder._fortalezaBounds);
+
+        if (status == google.maps.GeocoderStatus.OK) {
+          $(".noaddressfound").addClass("hidden");
+          callback(resultsInFortaleza[0].geometry.location);
+        } else {
+          $(".noaddressfound").removeClass("hidden");
+        }
+      });
+    }
 });
 
  var Marker = Backbone.Model.extend({
@@ -129,6 +169,7 @@ app.main = function() {
        var me = this;
        this.marker = marker;
        this._radius=500; //initialize radius
+       this.name = marker.name;
 
        this.markerOptions = {
             map: this.marker.map,
@@ -234,7 +275,11 @@ var MarkerList = Backbone.Collection.extend({
         toJSON : function() {
             var listMarkers=this.models;
             return {models: _.map(listMarkers,function(mark,i) {
-                            return {num: i+1,index: i};
+                            if(mark.name){
+                              return {name: mark.name, index: i};
+                            }else{
+                              return {name: 'Ponto '+(i+1),index: i};
+                            };
                             })};
         },
         removeByIndex : function(index) {
@@ -366,6 +411,7 @@ var BusMap = Backbone.Router.extend({
         this._lineList=new LineList();
         this._markerList=new MarkerList();
         this._map=new Map({ _fitBounds: true});
+        this._mapAddressFinder = new MapAddressFinder();
     },
     
     index : function() {
@@ -397,6 +443,7 @@ var BusMap = Backbone.Router.extend({
 
     linesFound : function() {
         $(".nolinesfound").addClass("hidden");
+        $(".noaddressfound").addClass("hidden");
     },
 
     maintenanceMode : function(active) {
