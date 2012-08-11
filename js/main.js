@@ -154,7 +154,7 @@ var MapAddressFinder = Backbone.Model.extend({
 
        var resultsInFortaleza = addressFinder.forceResultsInBounds(results, addressFinder._fortalezaBounds);
 
-        if (status == google.maps.GeocoderStatus.OK) {
+        if (status == google.maps.GeocoderStatus.OK && resultsInFortaleza.length>0) {
           $(".noaddressfound").addClass("hidden");
           callback(resultsInFortaleza[0].geometry.location);
         } else {
