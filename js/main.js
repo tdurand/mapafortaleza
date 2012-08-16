@@ -54,11 +54,14 @@ app.main = function() {
 
     },
     url:function() {
-        //HACK because etufor data set is not consistent
-        if(this.name!=undefined && this.name.length==2) {
-            this.name=this.name+" -";
+        if(this.name!=undefined){
+          //HACK because etufor data set is not consistent
+          if (this.name.length==2) {
+              this.name=this.name+" -";
+          }
+          return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 3062503 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?";
         }
-        return "https://www.google.com/fusiontables/api/query?sql=SELECT geometry FROM 3062503 WHERE name STARTS WITH '"+this.name+"'&jsonCallback=?"
+        return false;
     },
     parse : function(response) {
         //Clear map
