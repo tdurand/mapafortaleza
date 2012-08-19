@@ -17,7 +17,7 @@ app.main = function() {
         this.map = new google.maps.Map(document.getElementById("map_canvas"), this.myOptions);
         this.setArrows=new ArrowHandler(this.map);
         this.lines=[];
-        this.fetch();
+        
         var theMap=this;
 
         this.drawingManager = new google.maps.drawing.DrawingManager({
@@ -94,25 +94,17 @@ app.main = function() {
 
         }
 
-        this.ready();
+        busMap.ready();
 
         this._fitBounds=false;
     },
     displayLine : function(name) {
-        this.loading();
+        busMap.loading();
         this.name=name;
         this.fetch();
     },
     getMap : function(){
       return this.map;
-    },
-    loading : function() {
-        $("body").css("cursor","progress");  //TODO : Refacto in Less file
-        $(".loading").removeClass("hidden");
-    },
-    ready : function() {
-        $(".loading").addClass("hidden");
-        $("body").css("cursor","auto");
     },
     clear : function() {
         //remove previous lines
@@ -216,7 +208,7 @@ var MapAddressFinder = Backbone.Model.extend({
       return response;
     },
     fetchLines:function() {
-        busMap._map.loading();
+        busMap.loading();
         this.fetch({
             success: function(model,response){
               busMap._markerList.updateLineList();
@@ -408,10 +400,12 @@ var BusMap = Backbone.Router.extend({
     },
     
     initialize : function() {
+        this.loading();
         this._lineList=new LineList();
         this._markerList=new MarkerList();
         this._map=new Map({ _fitBounds: true});
         this._mapAddressFinder = new MapAddressFinder();
+        this.ready();
     },
     
     index : function() {
@@ -464,6 +458,14 @@ var BusMap = Backbone.Router.extend({
         $(".nav li").removeClass("active");
         $("#"+destination).show();
         $("."+destination).addClass("active");
+    },
+    loading : function() {
+        $("body").css("cursor","progress");  //TODO : Refacto in Less file
+        $(".loading").removeClass("hidden");
+    },
+    ready : function() {
+        $(".loading").addClass("hidden");
+        $("body").css("cursor","auto");
     }
 });
 
