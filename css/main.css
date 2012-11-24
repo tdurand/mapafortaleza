@@ -19,7 +19,7 @@ body {
 .row-fluid.map-hack,.sidebar { height:inherit; }
 
 div.lineListSidebar {
-  height:60%;
+  height:57%;
 }
 
 div.lineListSidebarContent {
@@ -47,4 +47,12 @@ Enable overflow: auto on elements with overthrow class when html element has ove
 .overthrow-enabled .lines {
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+.nav-bar-right {
+  padding-right: 0;
+  padding-left: 0;
+  margin-left: 20px;
+  margin-top: 5px;
+  float:right;
 }

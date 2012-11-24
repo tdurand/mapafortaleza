@@ -386,8 +386,8 @@ var LineListSidebarView = Backbone.View.extend({
         return this;
     },
     setSelected: function(numLine) {
-        $("#linelistsidebar td").removeClass("selected");
-        $("#linelistsidebar td:contains("+numLine+")").addClass("selected");
+        $("#linelistsidebar tr").removeClass("selected");
+        $("#linelistsidebar td:contains("+numLine+")").parent().addClass("selected");
     }
 });
 

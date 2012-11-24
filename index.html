@@ -19,10 +19,10 @@
     <![endif]-->
 
     <!-- Le fav and touch icons -->
-    <link rel="shortcut icon" href="images/favicon.ico">
-    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="images/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="images/apple-touch-icon-114x114.png">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <link rel="apple-touch-icon" href="images/icon-original.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="images/icon-original.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/icon-original.png">
   </head>
 
   <body>
@@ -41,9 +41,8 @@
               <li class="main active"><a href="">Mapa</a></li>
               <li class="about"><a href="#about">Sobre o aplicativo</a></li>
             </ul>
-            <div class="addthis_toolbox addthis_default_style pull-right addthis_32x32_style">
-                <a class="addthis_button_facebook"></a>
-                <a class="addthis_button_twitter"></a>
+            <div class="nav-bar-right">
+                <a href="https://twitter.com/mapafortaleza" class="twitter-follow-button" data-show-count="true" data-lang="en">Siga @mapafortaleza</a>
             </div>
           </div><!--/.nav-collapse -->
         </div>
@@ -55,7 +54,7 @@
           <div class="span2" style="color:white;">
             -
           </div>
-          <div class="span6">
+          <div class="span5">
             <div id="linelistselect">
               <h4>Escolhe uma linha :</h4>
               <p>
@@ -65,12 +64,12 @@
             </p>
             </div>
           </div>
-          <div class="span3">
+          <div class="span4">
             <div id="addressSearchForm">
               <h4>Digite um destino :</h4>
-              <form id="searchAddress">
+              <form id="searchAddress" class="form-inline">
                   <input type="text" id="address">
-                  <input type="submit" value="Buscar">
+                  <input class="btn btn-primary" type="submit" value="Buscar">
               </form>
             </div>
           </div>
@@ -138,9 +137,14 @@
                     <li><a href="https://github.com/regismesquita">Regis David Souza Mesquita</a> (<a href="https://twitter.com/#!/regismesquita">@regismesquita</a>): Primeira versão do sistema de filtragem pela posição </li>
                     <li><a href="https://github.com/tdurand">Thibault Durand</a> (<a href="https://twitter.com/#!/tibbb">@tibbb</a>): Criador da aplicação </li>
                 </ul>
+                <h4>Siga as atualizações</h4>
+                <ul>
+                  <li><a href="http://twitter.com/mapafortaleza">Twitter</a> , ultimo tweet: <span id="last-tweet"></span></li>
+                  <li><a href="http://www.facebook.com/mapafortaleza">Facebook</a></li>
+                </ul>
             </div>
             <div class="alert alert-info">
-                <p>Pode <strong>deixar messagem</strong>, <strong>fazer sugestão</strong> de funcionalidade ou reportar bugs aqui :</p>
+                <p>Pode <strong>deixar messagem</strong>, <strong>fazer sugestão</strong> de funcionalidade ou reportar bugs aqui ou no <a href="http://twitter.com/mapafortaleza">twitter</a></p>
             </div>
             <div id="disqus_thread"></div>
             <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
@@ -168,9 +172,6 @@
     <script type="text/javascript" src="js/distancewidget.js"></script>
     <script type="text/javascript" src="js/arrows.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
-
-    <script type="text/javascript" src="http://s7.addthis.com/js/250/addthis_widget.js#pubid=ra-4e8d0bb03fa904f4"></script>
-
 
     <script id="lineListSelect" type="text/html">
         <h4>Escolhe uma linha ({{_totalLines}}):</h4> 
@@ -225,6 +226,11 @@
         $(document).ready(function() {
             // Handler for .ready() called.
             ich.grabTemplates();
+
+            //Display last tweet
+            $.getJSON("http://api.twitter.com/1/statuses/user_timeline/mapafortaleza.json?count=1&include_rts=1&callback=?", function(data) {
+                    $("#last-tweet").html(data[0].text);
+            });
         });
 
     </script>
@@ -242,6 +248,7 @@
     })();
     </script>
 
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 
   </body>
 </html>

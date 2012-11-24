@@ -48,7 +48,6 @@ table {
 
 .table.listlines {
   tbody tr td,tbody tr th {
-    .buttonBackground(@white, darken(@white, 10%));
     cursor: pointer;
   }
 }
@@ -134,12 +133,10 @@ table {
 .table.listlines {
   tbody tr:hover td,
   tbody tr:hover th,
-  td.selected {
-    background-color:#006DCC;
+  tr.selected td {
+    background-color: #1684C2;
     color: white;
     text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-    cursor:pointer;
-    .buttonBackground(#006DCC, darken(#006DCC, 10%));
   }
 }
 
