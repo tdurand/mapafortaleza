@@ -140,10 +140,9 @@
                 </ul>
                 <h4>Siga as atualizações</h4>
                 <ul>
-                  <li><a href="https://twitter.com/mapafortaleza" class="twitter-follow-button" data-show-count="true" data-lang="en">Siga @mapafortaleza</a>, ultimo tweet: <span id="last-tweet"></span>
+                  <li><a href="https://twitter.com/mapafortaleza" class="twitter-follow-button" data-show-count="true" data-lang="en">Siga @mapafortaleza</a>
                   </li>
-                  <li><a href="http://www.facebook.com/mapafortaleza">Facebook</a></li>
-
+                  <li><div class="fb-like" data-href="https://www.facebook.com/mapafortaleza" data-send="true" data-layout="button_count" data-width="200" data-show-faces="false" data-font="lucida grande"></div></li>
                 </ul>
             </div>
             <div class="alert alert-info">
@@ -229,11 +228,6 @@
         $(document).ready(function() {
             // Handler for .ready() called.
             ich.grabTemplates();
-
-            //Display last tweet
-            $.getJSON("http://api.twitter.com/1/statuses/user_timeline/mapafortaleza.json?count=1&include_rts=1&callback=?", function(data) {
-                    $("#last-tweet").html(data[0].text);
-            });
         });
 
     </script>
