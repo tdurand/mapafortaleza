@@ -178,11 +178,9 @@
     <script id="lineListSelect" type="text/html">
         <h4>Escolhe uma linha ({{_totalLines}}):</h4> 
         <p><select data-placeholder="Escolhe uma linha" class="chzn-select">
-        {{#table}}
-            {{#rows}}
-                <option value="{{num}}">{{label}}</option>
-            {{/rows}}
-        {{/table}}
+        {{#rows}}
+            <option value="{{num}}">{{label}}</option>
+        {{/rows}}
         </select></p>
     </script>
 
@@ -190,13 +188,11 @@
         <h4>Linhas ({{_totalLines}}): </h4>
         <div class="lineListSidebarContent">
         <table class="table table-striped table-bordered table-condensed listlines">
-        {{#table}}
-           {{#rows}}
-              <tr>
-                    <td data-num="{{num}}">{{label}}</td>
-              </tr>
-           {{/rows}}                  
-        {{/table}}
+         {{#rows}}
+            <tr>
+                  <td data-num="{{num}}">{{label}}</td>
+            </tr>
+         {{/rows}}                  
         </table>
         </div>
     </script>
