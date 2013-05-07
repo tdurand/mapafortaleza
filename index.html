@@ -29,7 +29,7 @@
 
     <div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
-        <div class="container">
+        <div class="container-fluid">
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
@@ -41,23 +41,36 @@
               <li class="main active"><a href="">Mapa</a></li>
               <li class="about"><a href="#about">Sobre o aplicativo</a></li>
             </ul>
-            <div class="nav-bar-right">
+            <!--div class="nav-bar-right">
                 <a href="https://twitter.com/mapafortaleza" class="twitter-follow-button" data-show-count="true" data-lang="en">Siga @mapafortaleza</a>
                 <div class="fb-like" data-href="https://www.facebook.com/mapafortaleza" data-send="true" data-layout="button_count" data-width="200" data-show-faces="false" data-font="lucida grande"></div>
-            </div>
+            </div-->
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
 
     <div id="main" class="container-fluid page">
+      <div class="row-fluid" style='height:45px;'>
+         <div class="loading" class="hidden"></div>
+         <div class='network'>
+            <!--a href="https://twitter.com/mapafortaleza" class="twitter-follow-button" data-show-count="true" data-lang="en">Siga @mapafortaleza</a-->
+            <iframe scrolling="no" frameborder="0" data-twttr-rendered="true" title="Twitter Follow Button" style="width: 250px; height: 20px;" src="http://platform.twitter.com/widgets/follow_button.1367516458.html#_=1367934853245&amp;id=twitter-widget-0&amp;lang=en&amp;screen_name=mapafortaleza&amp;show_count=true&amp;show_screen_name=true&amp;size=m" allowtransparency="true" class="twitter-follow-button twitter-follow-button"></iframe>
+
+
+            <div data-font="lucida grande" data-show-faces="false" data-width="200" data-layout="button_count" data-send="true" data-href="https://www.facebook.com/mapafortaleza" class="fb-like fb_edge_widget_with_comment fb_iframe_widget" fb-xfbml-state="rendered">
+               <span style="height: 20px; width: 143px; float:right; margin-right: 8%">
+                  <iframe scrolling="no" id="f1f21ade34d9b28" name="f4c27e4df2255a" style="border: medium none; overflow: hidden; height: 20px; width: 143px;" title="Like this content on Facebook." class="fb_ltr" src="http://www.facebook.com/plugins/like.php?api_key=488940817813399&amp;locale=pt_BR&amp;sdk=joey&amp;channel_url=http%3A%2F%2Fstatic.ak.facebook.com%2Fconnect%2Fxd_arbiter.php%3Fversion%3D24%23cb%3Df27f09ea05db8b4%26origin%3Dhttp%253A%252F%252Ftdurand.github.io%252Ff39cba72e89198%26domain%3Dtdurand.github.io%26relation%3Dparent.parent&amp;href=https%3A%2F%2Fwww.facebook.com%2Fmapafortaleza&amp;node_type=link&amp;width=200&amp;font=lucida%20grande&amp;layout=button_count&amp;colorscheme=light&amp;show_faces=false&amp;send=true&amp;extended_social_context=false"></iframe>
+               </span>
+            </div>
+
+            <!--div class="fb-like" data-href="https://www.facebook.com/mapafortaleza" data-send="true" data-layout="button_count" data-width="200" data-show-faces="false" data-font="lucida grande"></div-->
+         </div>
+      </div>
       <div class="row-fluid">
-          <div class="span2" style="color:white;">
-            -
-          </div>
-          <div class="span5">
-            <div id="linelistselect">
-              <h4>Escolhe uma linha :</h4>
+          <div class="span3">
+            <div id="linelistselect" style='width:82%'>
+              <h4>Buscando Linhas :</h4>
               <p>
               <select data-placeholder="Escolhe uma linha" class="chzn-select">
                   <option value="">Carregando...</option>
@@ -65,50 +78,41 @@
             </p>
             </div>
           </div>
-          <div class="span4">
+          <div class="span3">
             <div id="addressSearchForm">
-              <h4>Digite um destino :</h4>
+              <h4>Destino :</h4>
               <form id="searchAddress" class="form-inline">
                   <input type="text" id="address">
                   <input class="btn btn-primary" type="submit" value="Buscar">
               </form>
             </div>
           </div>
-          <div class="span1">
-              <div class="loading" class="hidden">
-
-              </div>
+          <div class='span6'>
+             <h4>Itinerario:</h4>
+             <div class='span5 no-margin' style='margin-left:0'>
+                <button class="btn btn-primary btn-medium addmarker">
+                   <i class="icon-map-marker icon-white"></i>
+                   Adicionar ponto
+                </button>
+             </div>
+             <div id="listmarkers" style='float:left'></div>
           </div>
       </div>
       <div class="row-fluid map-hack">
-       <div class="span12 map-hack">
-            <div class="row-fluid map-hack">
-              <div class="span2 sidebar">
-                 <h4>Itinerario:</h4>
-                    <p><button class="btn btn-primary btn-large addmarker">
-                      <i class="icon-map-marker icon-white">
-                      </i>
-                      Adicionar ponto
-                    </button></p>
-                    <div id="listmarkers"></div>
-                    <div id="linelistsidebar" class="lineListSidebar">
-                     <h4>Linhas:</h4> 
-                    </div>
-               </div>
-               <div class="span10 content">
-                  <div class="nolinesfound alert alert-error hidden">
-                    <strong>Nenhuma linha correspondente !</strong> Tenta mover os pontos para tentar encontrar uma rota.
-                  </div>
-                  <div class="maintenance alert alert-heading hidden">
-                    <strong>Manutenção</strong> Atualizando os dados, por favor, aguarde alguns minutos...
-                  </div>
-                  <div class="noaddressfound alert alert-error hidden">
-                    <strong>Endereço não encontrado!</strong> Verifique se ele foi digitado corretamente.
-                  </div>
-                  <div id="map_canvas" class="map"></div>
-               </div>
+          <div class="span12 map-hack">
+             <div class="content">
+                <div class="nolinesfound alert alert-error hidden">
+                   <strong>Nenhuma linha correspondente !</strong> Tenta mover os pontos para tentar encontrar uma rota.
+                </div>
+                <div class="maintenance alert alert-heading hidden">
+                   <strong>Manutenção</strong> Atualizando os dados, por favor, aguarde alguns minutos...
+                </div>
+                <div class="noaddressfound alert alert-error hidden">
+                   <strong>Endereço não encontrado!</strong> Verifique se ele foi digitado corretamente.
+                </div>
+                <div id="map_canvas" class="map"></div>
              </div>
-       </div>
+          </div>
        </div>
        <!-- Hack : Fix issue of chrome on OSX : http://code.google.com/p/chromium/issues/detail?id=113358 -->
        <img src="http://maps.gstatic.com/mapfiles/openhand_8_8.cur" style="display:none" />
@@ -176,8 +180,8 @@
     <script type="text/javascript" src="js/main.js"></script>
 
     <script id="lineListSelect" type="text/html">
-        <h4>Escolhe uma linha ({{_totalLines}}):</h4> 
-        <p><select data-placeholder="Escolhe uma linha" class="chzn-select">
+        <h4>{{_totalLines}} Linhas:</h4> 
+        <p><select data-placeholder="Selecione uma linha" class="chzn-select">
         {{#rows}}
             <option value="{{num}}">{{label}}</option>
         {{/rows}}

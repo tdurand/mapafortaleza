@@ -64,6 +64,7 @@ app.main = function() {
         if(this.name!=undefined && this.name.length==2) {
             this.name=this.name+" -";
         }
+        //alert(app.params.urlFusionTable+"?sql=SELECT geometry FROM "+app.params.idFusionTable+" WHERE name STARTS WITH '"+this.name+"'&key="+app.params.keyFusionTable+"&callback=?");
         return app.params.urlFusionTable+"?sql=SELECT geometry FROM "+app.params.idFusionTable+" WHERE name STARTS WITH '"+this.name+"'&key="+app.params.keyFusionTable+"&callback=?";
     },
     parse : function(response) {
