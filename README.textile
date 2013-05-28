@@ -1,5 +1,8 @@
 h3. Mapa de onibus de Fortaleza
 
+You can read an article on my blog about the story of this project (and a bit of architecture): 
+http://www.thibault-durand.fr/post/31393552608/how-i-created-a-bus-map-of-fortaleza-brazil
+
 *NB: The data are not automatically updated.*
 
 Application for visualizing bus lines of Fortaleza:
