@@ -48,8 +48,22 @@ app.main = function() {
 
         $(".addmarker").bind("touchstart click",function() {
             busMap._markerList.add(new google.maps.Marker({position: busMap.getMap().center ,
-                                                            map: busMap.getMap() ,
+                                                            map: busMap.getMap(),
                                                             draggable: true}));
+        });
+
+        $(".addmylocal").bind("touchstart click",function() {
+            if(navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                var mycoords = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                busMap._markerList.add(new google.maps.Marker({position: mycoords ,
+                                                                map: busMap.getMap() ,
+                                                                draggable: true ,
+                                                                name: 'EU' }));
+                                                                }); 
+            } else { 
+                alert("Seu navegador não suporta geolocalização. :("); 
+            }
         });
 
         $("#searchAddress").bind("submit", function(e){
