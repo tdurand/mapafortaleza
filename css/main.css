@@ -19,7 +19,7 @@ body {
 .row-fluid.map-hack,.sidebar { height:inherit; }
 
 div.lineListSidebar {
-  height:85%;
+  height:55%;
 }
 
 div.lineListSidebarContent {
@@ -28,7 +28,7 @@ div.lineListSidebarContent {
 }
 
 .map {
-  height:100%;
+  height:75%;
 }
 
 .chzn-select {
@@ -77,11 +77,12 @@ Enable overflow: auto on elements with overthrow class when html element has ove
   text-align: left;
 }
 
+
 .sidebar {
   position: relative;
   top: -90px;
 }
-
+ 
 .lineListSidebar {
   margin-top: 30px;
 }
@@ -89,8 +90,4 @@ Enable overflow: auto on elements with overthrow class when html element has ove
 #linelistselect p {
   top: 3px;
   position: relative;
-}
-
-div.row-fluid.map-hack {
-  padding-bottom: 20px;
 }
