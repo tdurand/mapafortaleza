@@ -48,8 +48,44 @@ app.main = function() {
 
         $(".addmarker").bind("touchstart click",function() {
             busMap._markerList.add(new google.maps.Marker({position: busMap.getMap().center ,
-                                                            map: busMap.getMap() ,
+                                                            map: busMap.getMap(),
                                                             draggable: true}));
+        });
+
+        $(".addmylocal").bind("touchstart click",function() {
+            if(navigator.geolocation) {
+                // Find My Geolocation
+                navigator.geolocation.getCurrentPosition(function(position){
+                    // My Coords
+                    var mycoords = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    // Find My City with Geocoder
+                    var geocoder = new google.maps.Geocoder(),
+                        latlng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+                    geocoder.geocode({'latLng': latlng }, function (results, status) {
+                        if (status == google.maps.GeocoderStatus.OK) {
+                            // Search in Results the names of my City
+                            if (results[0]) {
+                                var cityLongName = results[0].address_components[3].long_name;
+                                var cityShortName = results[0].address_components[3].short_name;
+                                if (cityLongName == 'Fortaleza' || cityShortName == 'Fortaleza') {
+                                    busMap._markerList.add(new google.maps.Marker({ position: mycoords ,
+                                                                    map: busMap.getMap() ,
+                                                                    draggable: true ,
+                                                                    name: 'EU' }));
+                                } else {
+                                    alert("Não foi possível achar sua localização ou você não está em Fortaleza. Tente novamente mais tarde.");
+                                }
+                            }
+                        } else {
+                            alert("Não foi possível achar sua localização. Tente novamente mais tarde.");
+                        }
+                    });
+                    
+
+                }); 
+            } else { 
+                alert("Seu navegador não suporta geolocalização."); 
+            }
         });
 
         $("#searchAddress").bind("submit", function(e){

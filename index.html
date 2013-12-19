@@ -2,11 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Mapa de onibus de Fortaleza</title>
+    <title>Mapa de Ônibus de Fortaleza</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Mapa interativo das linhas de onibus de Fortaleza.
-                                      Permite a visualização e busca de rotas com um sistema de perquisa de itinerario.">
+    <meta name="description" content="Mapa interativo das linhas de onibus de Fortaleza. Permite a visualização e busca de rotas com um sistema de perquisa de itinerario.">
     <meta name="author" content="Thibault Durand">
+
+    <!-- Le Facebook Tags -->
+    <meta property="og:title" content="Mapa de Ônibus de Fortaleza" />
+    <meta property="og:description" content="Mapa interativo das linhas de onibus de Fortaleza. Permite a visualização e busca de rotas com um sistema de perquisa de itinerario." />
+    <meta property="og:image" content="img/icon-facebook.png" />   
 
     <!-- Le styles -->
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
@@ -35,11 +39,11 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="">Mapa de onibus de Fortaleza</a>
+          <a class="brand" href="">Mapa de Ônibus de Fortaleza</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li class="main active"><a href="">Mapa</a></li>
-              <li class="about"><a href="#about">Sobre o aplicativo</a></li>
+              <li class="about"><a href="#about">Sobre o Aplicativo</a></li>
             </ul>
             <div class="nav-bar-right">
                 <a href="https://twitter.com/mapafortaleza" class="twitter-follow-button" data-show-count="true" data-lang="en">Siga @mapafortaleza</a>
@@ -57,7 +61,7 @@
           </div>
           <div class="span5">
             <div id="linelistselect">
-              <h4>Escolhe uma linha :</h4>
+              <h4>Escolha uma linha :</h4>
               <p>
               <select data-placeholder="Escolhe uma linha" class="chzn-select">
                   <option value="">Carregando...</option>
@@ -89,6 +93,11 @@
                       <i class="icon-map-marker icon-white">
                       </i>
                       Adicionar ponto
+                    </button></p>
+                    <p><button class="btn btn-primary btn-large addmylocal">
+                      <i class="icon-map-marker icon-white">
+                      </i>
+                      Minha localização
                     </button></p>
                     <div id="listmarkers"></div>
                     <div id="linelistsidebar" class="lineListSidebar">

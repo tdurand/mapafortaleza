@@ -71,3 +71,23 @@ Enable overflow: auto on elements with overthrow class when html element has ove
 .fb_iframe_widget {
   display:block !important;
 }
+
+.addmarker, .addmylocal {
+  width: 175px;
+  text-align: left;
+}
+
+
+.sidebar {
+  position: relative;
+  top: -90px;
+}
+ 
+.lineListSidebar {
+  margin-top: 30px;
+}
+
+#linelistselect p {
+  top: 3px;
+  position: relative;
+}
