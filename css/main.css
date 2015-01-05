@@ -64,10 +64,24 @@ Enable overflow: auto on elements with overthrow class when html element has ove
   padding-right: 0;
   padding-left: 0;
   margin-left: 20px;
-  margin-top: 5px;
+  margin-top: 14px;
   float:right;
+}
+
+.nav-bar-right a,
+.nav-bar-right div {
+  float: left;
+  margin: 0 10px;
 }
 
 .fb_iframe_widget {
   display:block !important;
 }
+
+
+
+
+
+
+
+
