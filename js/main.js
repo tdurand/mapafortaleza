@@ -17,7 +17,8 @@ app.main = function() {
         this.myOptions = {
           zoom: 13,
           center: this.myLatlng,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          scrollwheel: false
         }
         
         this.map = new google.maps.Map(document.getElementById("map_canvas"), this.myOptions);
