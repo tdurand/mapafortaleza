@@ -44,7 +44,7 @@ function ArrowHandler(map) {
   // Returns the triangle icon object
  ArrowHandler.prototype.addIcon = function(file) {
    var g = google.maps;
-   var icon = new g.MarkerImage("http://www.google.com/mapfiles/" + file,
+   var icon = new g.MarkerImage("https://www.google.com/mapfiles/" + file,
     new g.Size(24, 24), null, new g.Point(12, 12));
    return icon;
   };
