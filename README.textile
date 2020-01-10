@@ -1,3 +1,5 @@
+h1. Update 2020: Project deprecated
+
 h3. Mapa de onibus de Fortaleza
 
 You can read an article on my blog about the story of this project (and a bit of architecture): 
